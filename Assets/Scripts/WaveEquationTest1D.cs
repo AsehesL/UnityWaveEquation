@@ -101,18 +101,30 @@ public class WaveEquationTest1D : MonoBehaviour
 	    Debug.Log("D:" + m_D);
 
 
-        //m_K1 = (4 - 4*Time.fixedDeltaTime*Time.fixedDeltaTime*c*c/(m_D*m_D))/(2 + u*Time.fixedDeltaTime);
-        //m_K2 = (u*Time.fixedDeltaTime - 2)/(u*Time.fixedDeltaTime + 2);
-        //m_K3 = (4*Time.fixedDeltaTime*Time.fixedDeltaTime*c*c/(m_D*m_D))/(u*Time.fixedDeltaTime + 2);
+	    float maxC = m_D/Time.fixedDeltaTime*Mathf.Sqrt((u*Time.fixedDeltaTime + 2)/2);
+	    float mt1 = (u + Mathf.Sqrt(u*u + 16*c*c/(m_D*m_D)))/(4*c*c/(m_D*m_D));
+	    float mt2 = (u - Mathf.Sqrt(u*u + 16*c*c/(m_D*m_D)))/(4*c*c/(m_D*m_D));
 
-	    m_K1 = (4*Time.fixedDeltaTime*Time.fixedDeltaTime/(m_D*m_D) - 4*c*c)/(u*Time.fixedDeltaTime - 2*c*c);
-	    m_K2 = (2*c*c + u*Time.fixedDeltaTime)/(u*Time.fixedDeltaTime - 2*c*c);
-	    m_K3 = 2*Time.fixedDeltaTime*Time.fixedDeltaTime/(m_D*m_D)/(2*c*c - u*Time.fixedDeltaTime);
+	    if (maxC < 0 || c >= maxC)
+	        Debug.LogWarning("不合法的速度:" + c + "," + maxC);
+	    if (mt1 > 0 && Time.fixedDeltaTime >= mt1)
+	        Debug.LogWarning("不合法的时间:" + mt1 + "," + mt2);
+	    if (mt2 > 0 && Time.fixedDeltaTime >= mt2)
+	        Debug.LogWarning("不合法的时间:" + mt1 + "," + mt2);
+
+
+        m_K1 = (4 - 4*Time.fixedDeltaTime*Time.fixedDeltaTime*c*c/(m_D*m_D))/(2 + u*Time.fixedDeltaTime);
+        m_K2 = (u*Time.fixedDeltaTime - 2)/(u*Time.fixedDeltaTime + 2);
+        m_K3 = (2*Time.fixedDeltaTime*Time.fixedDeltaTime*c*c/(m_D*m_D))/(u*Time.fixedDeltaTime + 2);
+
+	    //m_K1 = (4*Time.fixedDeltaTime*Time.fixedDeltaTime/(m_D*m_D) - 4*c*c)/(u*Time.fixedDeltaTime - 2*c*c);
+	    //m_K2 = (2*c*c + u*Time.fixedDeltaTime)/(u*Time.fixedDeltaTime - 2*c*c);
+	    //m_K3 = 2*Time.fixedDeltaTime*Time.fixedDeltaTime/(m_D*m_D)/(2*c*c - u*Time.fixedDeltaTime);
 	}
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             AddForce(worldPos);
@@ -160,8 +172,21 @@ public class WaveEquationTest1D : MonoBehaviour
         if (hit >= 0 && hit <= size)
         {
             Vector3 p = m_VertexList[hit*2 + 1];
-            p.y = force;
+            p.y += force;
             m_VertexList[hit * 2 + 1] = p;
+
+            //if (hit >= 1)
+            //{
+            //    p = m_VertexList[(hit-1)*2+1];
+            //    p.y += force*0.25f;
+            //    m_VertexList[(hit-1)*2+1] = p;
+            //}
+            //if (hit <= size - 1)
+            //{
+            //    p = m_VertexList[(hit + 1) * 2 + 1];
+            //    p.y += force * 0.25f;
+            //    m_VertexList[(hit + 1) * 2 + 1] = p;
+            //}
             //m_Mesh.SetVertices(m_VertexList);
             //m_Mesh.SetTriangles(m_Indexes, 0);
         }
