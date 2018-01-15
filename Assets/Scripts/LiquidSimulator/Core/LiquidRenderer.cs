@@ -5,6 +5,11 @@ public class LiquidRenderer
 {
     public Mesh mesh { get { return m_Mesh; } }
 
+    public Material material
+    {
+        get { return m_Material; }
+    }
+
     private MeshRenderer m_MeshRenderer;
     private MeshFilter m_MeshFilter;
 
