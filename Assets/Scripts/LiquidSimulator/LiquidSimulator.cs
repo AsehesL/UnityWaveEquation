@@ -27,7 +27,7 @@ public class LiquidSimulator : MonoBehaviour
 
     void Start ()
     {
-        m_DeltaSize = size/subdivision;
+        m_DeltaSize = 1.0f/subdivision;
 
         m_IsSupported = CheckSupport();
         if (!m_IsSupported)
@@ -54,7 +54,9 @@ public class LiquidSimulator : MonoBehaviour
 
     void OnDestroy()
     {
+        if(m_Renderer!=null)
         m_Renderer.Release();
+        if(m_Camera!=null)
         m_Camera.Release();
         m_Renderer = null;
         m_Camera = null;
@@ -67,6 +69,7 @@ public class LiquidSimulator : MonoBehaviour
         float maxV = m_DeltaSize/(2*0.02f)*Mathf.Sqrt(viscosity*0.02f + 2);
         if (velocity >= maxV)
         {
+            Debug.Log(maxV.ToString("f5"));
             Debug.LogError("波速不符合要求");
             return false;
         }
