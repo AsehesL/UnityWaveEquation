@@ -2,8 +2,9 @@
 {
 	Properties
 	{
-		_CurTex ("CurTex", 2D) = "white" {}
+		_MainTex ("MainTexture", 2D) = "white" {}
 		_PreTex("PreTex", 2D) = "white" {}
+		_WaveParams("WaveParams", vector) = (0,0,0,0)
 	}
 	SubShader
 	{
@@ -37,17 +38,17 @@
 				return o;
 			}
 			
-			sampler2D _CurTex;
+			sampler2D _MainTex;
 			sampler2D _PreTex;
 
 			half4 _WaveParams;
 
 			fixed4 frag (v2f i) : SV_Target
 			{
-				float cur = _WaveParams.x*DecodeFloatRGBA(tex2D(_CurTex, i.uv));
+				float cur = _WaveParams.x*DecodeFloatRGBA(tex2D(_MainTex, i.uv));
 				
-			float rg = _WaveParams.z*(DecodeFloatRGBA(tex2D(_CurTex, i.uv + float2(_WaveParams.w, 0))) + DecodeFloatRGBA(tex2D(_CurTex, i.uv + float2(-_WaveParams.w,0)))
-				+ DecodeFloatRGBA(tex2D(_CurTex, i.uv + float2(0,_WaveParams.w))) + DecodeFloatRGBA(tex2D(_CurTex, i.uv + float2(0,-_WaveParams.w))));
+			float rg = _WaveParams.z*(DecodeFloatRGBA(tex2D(_MainTex, i.uv + float2(_WaveParams.w, 0))) + DecodeFloatRGBA(tex2D(_MainTex, i.uv + float2(-_WaveParams.w,0)))
+				+ DecodeFloatRGBA(tex2D(_MainTex, i.uv + float2(0,_WaveParams.w))) + DecodeFloatRGBA(tex2D(_MainTex, i.uv + float2(0,-_WaveParams.w))));
 
 			float pre = _WaveParams.y*DecodeFloatRGBA(tex2D(_PreTex, i.uv));
 				

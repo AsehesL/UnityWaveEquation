@@ -17,11 +17,14 @@ public class WaveEquationTest : MonoBehaviour
     private Material m_ForceMat;
     private Material m_WaveMat;
 
-    private RenderTexture[] m_RenderTextures;
+    public RenderTexture[] m_RenderTextures;
 
 	void Start ()
 	{
-	    m_ForceMat = new Material(Shader.Find("Hidden/ForceTest"));
+	    Camera cam = gameObject.GetComponent<Camera>();
+	    cam.SetReplacementShader(Shader.Find("Unlit/ForceR"), "RenderType");
+
+ 	    m_ForceMat = new Material(Shader.Find("Hidden/ForceTest"));
 	    m_WaveMat = new Material(Shader.Find("Hidden/WaveTest"));
 	    m_ForceMat.SetFloat("_Force", force);
 	    m_ForceMat.SetFloat("_ForceRange", range);
@@ -87,6 +90,8 @@ public class WaveEquationTest : MonoBehaviour
 
     void OnRenderImage(RenderTexture src, RenderTexture dst)
     {
+        //Graphics.Blit(src, m_RenderTextures[0]);
+
         Graphics.Blit(m_RenderTextures[0], dst);
 
         m_WaveMat.SetTexture("_CurTex", m_RenderTextures[0]);

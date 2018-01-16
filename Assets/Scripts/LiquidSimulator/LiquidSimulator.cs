@@ -46,7 +46,7 @@ public class LiquidSimulator : MonoBehaviour
 
 	    m_Renderer = new LiquidRenderer(gameObject, size, subdivision);
         m_Camera = new GameObject("[LS Camera]").AddComponent<LiquidSimulatorCamera>();
-        m_Camera.Init(interactLayer, size/2, -maxHeight, -minHeight, force, new Vector4(k1,k2,k3,0.05f), 1024, m_Renderer.material);
+        m_Camera.Init(interactLayer, size/2, -maxHeight, -minHeight, force, new Vector4(k1,k2,k3,0.01f), 1024, m_Renderer.material);
         m_Camera.transform.SetParent(transform);
         m_Camera.transform.localPosition = Vector3.zero;
         m_Camera.transform.localEulerAngles = new Vector3(90, 0, 0);

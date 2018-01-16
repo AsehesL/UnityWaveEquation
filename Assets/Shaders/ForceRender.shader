@@ -33,14 +33,18 @@
 			{
 				v2f o;
 				float4 camPos = mul(UNITY_MATRIX_MV, v.vertex);
-				o.height = step(0, 0 - camPos.z)*internal_Force;
+				//o.height = step(0, 0 - camPos.z)*internal_Force;
+				o.height = camPos.z;
 				o.vertex = mul(UNITY_MATRIX_P, camPos);
 				return o;
 			}
 
-			fixed4 frag (v2f i) : SV_Target
+			fixed4 frag(v2f i) : SV_Target
 			{
-				return EncodeFloatRGBA(i.height);
+				if (i.height >= 0)
+					return 0;
+				float h = step(0, 0 - i.height)*internal_Force;
+				return EncodeFloatRGBA(h);
 			}
 			ENDCG
 		}
