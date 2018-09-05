@@ -75,7 +75,7 @@ public class WaveEquationTest : MonoBehaviour
     }
 	
 	void Update () {
-	    if (Input.GetMouseButtonDown(0))
+	    if (Input.GetMouseButton(0))
 	    {
 	        float x = Input.mousePosition.x/Screen.width;
 	        float y = Input.mousePosition.y/Screen.height;
