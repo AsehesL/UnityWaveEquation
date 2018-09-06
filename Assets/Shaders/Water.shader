@@ -67,7 +67,7 @@
 				o.proj1 = ComputeScreenPos(projPos);
 
 				float height = tex2Dlod(_LiquidHeightMap, float4(v.texcoord.xy,0,0));
-				v.vertex.y += height*_Height;
+				v.vertex.y += (height-0.5)*_Height;
 				o.uv = v.texcoord;
 				UNITY_TRANSFER_FOG(o,o.vertex);
 				o.vertex = UnityObjectToClipPos(v.vertex);

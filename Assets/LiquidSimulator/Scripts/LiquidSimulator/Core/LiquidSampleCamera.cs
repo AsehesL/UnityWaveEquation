@@ -15,11 +15,22 @@ namespace ASL.LiquidSimulator
             }
         }
 
+        public RenderTexture ReflectMap
+        {
+            get
+            {
+                return m_ReflectMap;
+            }
+        }
+
         private Camera m_Camera;
+
+        private Camera m_ReflectCamera;
 
         private RenderTexture m_CurTexture;
         private RenderTexture m_PreTexture;
         private RenderTexture m_HeightMap;
+        private RenderTexture m_ReflectMap;
 
         private Shader m_ForceRenderShader;
 
@@ -27,6 +38,7 @@ namespace ASL.LiquidSimulator
         //private Material m_TargetMaterial;
 
         private Vector4 m_WaveParams;
+        private Vector4 m_Plane;
 
         void OnGUI()
         {
@@ -34,9 +46,10 @@ namespace ASL.LiquidSimulator
                 GUI.DrawTexture(new Rect(0, 0, 100, 100), m_CurTexture);
         }
 
-        public void Init(LayerMask interactLayer, float width, float height, float depth, float force, float fade, Vector4 waveParams, int texSize)
+        public void Init(LayerMask interactLayer, float width, float height, float depth, float force, float fade, Vector4 plane, Vector4 waveParams, int texSize)
         {
             m_WaveParams = waveParams;
+            m_Plane = plane;
 
             m_Camera = gameObject.AddComponent<Camera>();
             m_Camera.aspect = width/height;
@@ -51,6 +64,11 @@ namespace ASL.LiquidSimulator
             m_Camera.clearFlags = CameraClearFlags.Nothing;
             m_Camera.allowHDR = false;
 
+            m_ReflectCamera = new GameObject("[ReflectCamera]").AddComponent<Camera>();
+            m_ReflectCamera.hideFlags = HideFlags.HideInHierarchy;
+            m_ReflectCamera.CopyFrom(m_Camera);
+            m_ReflectCamera.enabled = false;
+
             m_ForceRenderShader = Shader.Find("Hidden/LiquidSimulator/Force");
 
             m_CurTexture = RenderTexture.GetTemporary(texSize, texSize, 16);
@@ -59,6 +77,8 @@ namespace ASL.LiquidSimulator
             m_PreTexture.name = "[Pre]";
             m_HeightMap = RenderTexture.GetTemporary(texSize, texSize, 16);
             m_HeightMap.name = "[HeightMap]";
+            m_ReflectMap = RenderTexture.GetTemporary(texSize, texSize, 16);
+            m_ReflectMap.name = "[HeightMap]";
 
             RenderTexture tmp = RenderTexture.active;
             RenderTexture.active = m_CurTexture;
@@ -71,6 +91,7 @@ namespace ASL.LiquidSimulator
             RenderTexture.active = tmp;
 
             m_Camera.targetTexture = m_CurTexture;
+            m_ReflectCamera.targetTexture = m_ReflectMap;
 
             Shader.SetGlobalFloat("internal_Force", force);
 
@@ -90,6 +111,56 @@ namespace ASL.LiquidSimulator
 
 
             Graphics.Blit(src, m_PreTexture);
+
+            m_ReflectCamera.worldToCameraMatrix = m_Camera.worldToCameraMatrix * ReflectMatrix(m_Plane);
+            m_ReflectCamera.projectionMatrix = ObliqueMatrix(m_Plane, m_Camera)
+        }
+
+        private Matrix4x4 ReflectMatrix(Vector4 plane)
+        {
+            Matrix4x4 m = default(Matrix4x4);
+            m.m00 = -2 * plane.x * plane.x + 1;
+            m.m01 = -2 * plane.x * plane.y;
+            m.m02 = -2 * plane.x * plane.z;
+            m.m03 = -2 * plane.x * plane.w;
+
+            m.m10 = -2 * plane.x * plane.y;
+            m.m11 = -2 * plane.y * plane.y + 1;
+            m.m12 = -2 * plane.y * plane.z;
+            m.m13 = -2 * plane.y * plane.w;
+
+            m.m20 = -2 * plane.z * plane.x;
+            m.m21 = -2 * plane.z * plane.y;
+            m.m22 = -2 * plane.z * plane.z + 1;
+            m.m23 = -2 * plane.z * plane.w;
+
+            m.m30 = 0; m.m31 = 0;
+            m.m32 = 0; m.m33 = 1;
+            return m;
+        }
+
+        private Matrix4x4 ObliqueMatrix(Vector4 plane, Camera reflectCamera)
+        {
+            //世界空间的平面先变换到相机空间
+            plane = (reflectCamera.worldToCameraMatrix.inverse).transpose * plane;
+
+
+            Matrix4x4 proj = reflectCamera.projectionMatrix;
+
+            //计算近裁面的最远角点Q
+            Vector4 q = default(Vector4);
+            q.x = (Mathf.Sign(plane.x) + proj.m02) / proj.m00;
+            q.y = (Mathf.Sign(plane.y) + proj.m12) / proj.m11;
+            q.z = -1.0f;
+            q.w = (1.0f + proj.m22) / proj.m23;
+            Vector4 c = plane * (2.0f / Vector4.Dot(plane, q));
+
+            //计算M3'
+            proj.m20 = c.x;
+            proj.m21 = c.y;
+            proj.m22 = c.z + 1.0f;
+            proj.m23 = c.w;
+            return proj;
         }
 
         public void Release()
@@ -100,6 +171,8 @@ namespace ASL.LiquidSimulator
                 RenderTexture.ReleaseTemporary(m_PreTexture);
             if (m_HeightMap)
                 RenderTexture.ReleaseTemporary(m_HeightMap);
+            if (m_ReflectCamera)
+                Destroy(m_ReflectCamera.gameObject);
             //if (m_CommandBuffer != null)
             //{
             //    if (m_Camera)
