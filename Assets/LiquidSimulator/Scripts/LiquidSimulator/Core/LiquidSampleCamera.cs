@@ -65,8 +65,8 @@ namespace ASL.LiquidSimulator
             m_Camera.allowHDR = false;
 
             m_ReflectCamera = new GameObject("[ReflectCamera]").AddComponent<Camera>();
-            m_ReflectCamera.hideFlags = HideFlags.HideInHierarchy;
-            m_ReflectCamera.CopyFrom(m_Camera);
+            //m_ReflectCamera.hideFlags = HideFlags.HideInHierarchy;
+            m_ReflectCamera.CopyFrom(Camera.main);
             m_ReflectCamera.enabled = false;
 
             m_ForceRenderShader = Shader.Find("Hidden/LiquidSimulator/Force");
@@ -112,8 +112,16 @@ namespace ASL.LiquidSimulator
 
             Graphics.Blit(src, m_PreTexture);
 
-            m_ReflectCamera.worldToCameraMatrix = m_Camera.worldToCameraMatrix * ReflectMatrix(m_Plane);
-            m_ReflectCamera.projectionMatrix = ObliqueMatrix(m_Plane, m_Camera)
+            m_ReflectCamera.CopyFrom(Camera.main);
+            m_ReflectCamera.targetTexture = m_ReflectMap;
+            m_ReflectCamera.worldToCameraMatrix = m_ReflectCamera.worldToCameraMatrix * ReflectMatrix(m_Plane);
+            m_ReflectCamera.projectionMatrix = ObliqueMatrix(m_Plane, Camera.main);
+
+            GL.invertCulling = true;
+
+            m_ReflectCamera.Render();
+
+            GL.invertCulling = false;
         }
 
         private Matrix4x4 ReflectMatrix(Vector4 plane)

@@ -2,7 +2,8 @@
 {
 	Properties
 	{
-		_MainTex ("Texture", 2D) = "white" {}
+		_LiquidHeightMap ("HeightMap", 2D) = "" {}
+		_LiquidReflectMap ("ReflectMap", 2D) = "" {}
 		_Specular("Specular", float) = 0
 		_Gloss("Gloss", float) = 0
 		_Refract("Refract", float) = 0
@@ -45,6 +46,7 @@
 
 			sampler2D _GrabTexture;
 			sampler2D _LiquidHeightMap;
+			sampler2D _LiquidReflectMap;
 			sampler2D_float _CameraDepthTexture;
 
 			half _Specular;
@@ -87,7 +89,7 @@
 			}
 
 			
-			fixed4 frag (v2f i) : SV_Target
+			half4 frag (v2f i) : SV_Target
 			{
 				float depth = LinearEyeDepth(tex2Dproj(_CameraDepthTexture, i.proj1));
 				float deltaDepth = depth - i.proj0.z;
@@ -108,7 +110,10 @@
 				float3 viewDir = normalize(UnityWorldSpaceViewDir(worldPos));
 
 				float2 projUv = i.proj0.xy / i.proj0.w + normal.xy*_Refract;
-				fixed4 col = tex2D(_GrabTexture, projUv);
+				half4 col = tex2D(_GrabTexture, projUv);
+				half4 reflcol = tex2D(_LiquidReflectMap, projUv);
+
+				col.rgb = lerp(col.rgb, reflcol.rgb, 0.5);
 
 				half3 watercol = lerp(_DeepColor.rgb, _ShallowColor.rgb, ranges.y);
 

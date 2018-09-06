@@ -72,13 +72,16 @@ public class LiquidRenderer : MonoBehaviour
 
         m_Camera = new GameObject("[SampleCamera]").AddComponent<LiquidSampleCamera>();
 
-        m_Camera.Init(interactLayer, width, length, depth, forceFactor, fade, new Vector4(k1, k2, k3, 0.005f), 1024);
+        m_Camera.Init(interactLayer, width, length, depth, forceFactor, fade,
+            new Vector4(transform.up.x, transform.up.y, transform.up.z,
+                -Vector3.Dot(transform.up, transform.position)), new Vector4(k1, k2, k3, 0.005f), 1024);
         m_Camera.transform.SetParent(transform);
         m_Camera.transform.localPosition = Vector3.zero;
         m_Camera.transform.localEulerAngles = new Vector3(90, 0, 0);
 
-        m_Geometry = new LiquidGeometry(gameObject, cellSize, width, length);
+        m_Geometry = new LiquidGeometry(gameObject, cellSize, width, length, depth);
         m_Geometry.SetLiquidHeightMap(m_Camera.HeightMap);
+        m_Geometry.SetLiquidReflectMap(m_Camera.ReflectMap);
     }
 
     void Update()
