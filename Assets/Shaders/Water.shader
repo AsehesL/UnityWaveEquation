@@ -4,10 +4,11 @@
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 		_Color ("Color", color) = (1,1,1,1)
+		_Noise ("Noise", float) = 0
 	}
 	SubShader
 	{
-		Tags { "RenderType"="Opaque" }
+		Tags { "RenderType"="Opaque" "Queue"="Transparent" }
 		LOD 100
 
 		GrabPass {}
@@ -32,6 +33,7 @@
 
 			sampler2D _MainTex;
 			sampler2D _GrabTexture;
+			sampler2D _LiquidHeightMap;
 			float4 _MainTex_ST;
 
 			float4 _Color;
@@ -46,10 +48,20 @@
 		
 				return o;
 			}
+
+			float _Noise;
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				fixed4 col = tex2Dproj(_GrabTexture, i.proj);
+				
+				float4 heightMapCol = tex2D(_LiquidHeightMap, i.uv);
+				float height;
+				float3 normal;
+				DecodeDepthNormal(heightMapCol, height, normal);
+
+				float2 projUv = i.proj.xy / i.proj.w + normal.xy*_Noise;
+				fixed4 col = tex2D(_GrabTexture, projUv);
+
 				col.rgb *= _Color.rgb;
 				// apply fog
 				UNITY_APPLY_FOG(i.fogCoord, col);
