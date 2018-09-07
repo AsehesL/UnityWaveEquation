@@ -46,6 +46,11 @@ public class LiquidRenderer : MonoBehaviour
     {
         get { return m_IsSupported; }
     }
+
+    public RenderTexture HeightMap
+    {
+        get { return m_Camera ? m_Camera.HeightMap : null; }
+    }
     #endregion
 
     private bool m_IsSupported;

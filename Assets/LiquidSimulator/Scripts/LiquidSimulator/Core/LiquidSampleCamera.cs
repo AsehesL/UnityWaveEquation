@@ -77,6 +77,7 @@ namespace ASL.LiquidSimulator
             m_PreTexture.name = "[Pre]";
             m_HeightMap = RenderTexture.GetTemporary(texSize, texSize, 16);
             m_HeightMap.name = "[HeightMap]";
+            m_HeightMap.wrapMode = TextureWrapMode.Repeat;
             m_ReflectMap = RenderTexture.GetTemporary(texSize, texSize, 16);
             m_ReflectMap.name = "[HeightMap]";
 

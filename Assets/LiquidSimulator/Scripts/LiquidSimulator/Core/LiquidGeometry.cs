@@ -9,7 +9,7 @@ namespace ASL.LiquidSimulator
 
         private Mesh m_LiquidMesh;
         private Material m_LiquidMaterial;
-        private Material m_LiquidBodyMaterial;
+        //private Material m_LiquidBodyMaterial;
         private MeshFilter m_LiquidMeshFilter;
         private MeshRenderer m_LiquidMeshRenderer;
 
@@ -24,9 +24,10 @@ namespace ASL.LiquidSimulator
 
             m_LiquidMesh = GenerateLiquidMesh(width, length, depth, cellSize);
             m_LiquidMaterial = new Material(Shader.Find("Unlit/Water"));
-            m_LiquidBodyMaterial = new Material(Shader.Find("Unlit/WaterBody"));
+            //m_LiquidBodyMaterial = new Material(Shader.Find("Unlit/WaterBody"));
 
-            m_LiquidMeshRenderer.sharedMaterials = new Material[] {m_LiquidMaterial, m_LiquidBodyMaterial};
+            m_LiquidMeshRenderer.sharedMaterial = m_LiquidMaterial;
+            //m_LiquidMeshRenderer.sharedMaterials = new Material[] {m_LiquidMaterial, m_LiquidBodyMaterial};
             m_LiquidMeshFilter.sharedMesh = m_LiquidMesh;
 
         }
@@ -53,7 +54,7 @@ namespace ASL.LiquidSimulator
             List<Vector2> uvList = new List<Vector2>();
             List<Vector3> normalList = new List<Vector3>();
             List<int> sub0indexList = new List<int>();
-            List<int> sub1indexList = new List<int>();
+            //List<int> sub1indexList = new List<int>();
             float xcellsize = width / xsize;
             float uvxcellsize = 1.0f / xsize;
             float ycellsize = length / ysize;
@@ -80,94 +81,94 @@ namespace ASL.LiquidSimulator
                 }
             }
 
-            int vcount = vertexList.Count;
-            for (int i = 0; i <= ysize; i++)
-            {
-                vertexList.Add(new Vector3(-width*0.5f, -depth, -length*0.5f + i*ycellsize));
-                vertexList.Add(new Vector3(-width*0.5f, 0, -length * 0.5f + i * ycellsize));
+            //int vcount = vertexList.Count;
+            //for (int i = 0; i <= ysize; i++)
+            //{
+            //    vertexList.Add(new Vector3(-width*0.5f, -depth, -length*0.5f + i*ycellsize));
+            //    vertexList.Add(new Vector3(-width*0.5f, 0, -length * 0.5f + i * ycellsize));
 
-                vertexList.Add(new Vector3(width * 0.5f, -depth, -length * 0.5f + i * ycellsize));
-                vertexList.Add(new Vector3(width * 0.5f, 0, -length * 0.5f + i * ycellsize));
+            //    vertexList.Add(new Vector3(width * 0.5f, -depth, -length * 0.5f + i * ycellsize));
+            //    vertexList.Add(new Vector3(width * 0.5f, 0, -length * 0.5f + i * ycellsize));
 
-                uvList.Add(new Vector2(i * uvycellsize, 0));
-                uvList.Add(new Vector2(i * uvycellsize, 1));
+            //    uvList.Add(new Vector2(i * uvycellsize, 0));
+            //    uvList.Add(new Vector2(i * uvycellsize, 1));
 
-                uvList.Add(new Vector2(i * uvycellsize, 0));
-                uvList.Add(new Vector2(i * uvycellsize, 1));
+            //    uvList.Add(new Vector2(i * uvycellsize, 0));
+            //    uvList.Add(new Vector2(i * uvycellsize, 1));
 
-                normalList.Add(Vector3.left);
-                normalList.Add(Vector3.left);
+            //    normalList.Add(Vector3.left);
+            //    normalList.Add(Vector3.left);
 
-                normalList.Add(Vector3.right);
-                normalList.Add(Vector3.right);
+            //    normalList.Add(Vector3.right);
+            //    normalList.Add(Vector3.right);
 
-                if (i < ysize)
-                {
-                    sub1indexList.Add(vcount + i * 4 + 0);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 1);
-                    sub1indexList.Add(vcount + i * 4 + 1);
+            //    if (i < ysize)
+            //    {
+            //        sub1indexList.Add(vcount + i * 4 + 0);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 1);
+            //        sub1indexList.Add(vcount + i * 4 + 1);
 
-                    sub1indexList.Add(vcount + i * 4 + 0);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 0);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 1);
+            //        sub1indexList.Add(vcount + i * 4 + 0);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 0);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 1);
 
-                    sub1indexList.Add(vcount + i * 4 + 2);
-                    sub1indexList.Add(vcount + i * 4 + 3);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 3);
+            //        sub1indexList.Add(vcount + i * 4 + 2);
+            //        sub1indexList.Add(vcount + i * 4 + 3);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 3);
 
-                    sub1indexList.Add(vcount + i * 4 + 2);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 3);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 2);
-                }
-            }
+            //        sub1indexList.Add(vcount + i * 4 + 2);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 3);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 2);
+            //    }
+            //}
 
-            vcount = vertexList.Count;
-            for (int i = 0; i <= xsize; i++)
-            {
-                vertexList.Add(new Vector3(-width * 0.5f + i * xcellsize, -depth, -length * 0.5f));
-                vertexList.Add(new Vector3(-width * 0.5f + i * xcellsize, 0, -length * 0.5f));
+            //vcount = vertexList.Count;
+            //for (int i = 0; i <= xsize; i++)
+            //{
+            //    vertexList.Add(new Vector3(-width * 0.5f + i * xcellsize, -depth, -length * 0.5f));
+            //    vertexList.Add(new Vector3(-width * 0.5f + i * xcellsize, 0, -length * 0.5f));
 
-                vertexList.Add(new Vector3(-width * 0.5f + i * xcellsize, -depth, length * 0.5f));
-                vertexList.Add(new Vector3(-width * 0.5f + i * xcellsize, 0, length * 0.5f));
+            //    vertexList.Add(new Vector3(-width * 0.5f + i * xcellsize, -depth, length * 0.5f));
+            //    vertexList.Add(new Vector3(-width * 0.5f + i * xcellsize, 0, length * 0.5f));
 
-                uvList.Add(new Vector2(i * uvxcellsize, 0));
-                uvList.Add(new Vector2(i * uvxcellsize, 0));
+            //    uvList.Add(new Vector2(i * uvxcellsize, 0));
+            //    uvList.Add(new Vector2(i * uvxcellsize, 0));
 
-                uvList.Add(new Vector2(i * uvxcellsize, 0));
-                uvList.Add(new Vector2(i * uvxcellsize, 0));
+            //    uvList.Add(new Vector2(i * uvxcellsize, 0));
+            //    uvList.Add(new Vector2(i * uvxcellsize, 0));
 
-                normalList.Add(Vector3.back);
-                normalList.Add(Vector3.back);
+            //    normalList.Add(Vector3.back);
+            //    normalList.Add(Vector3.back);
 
-                normalList.Add(Vector3.forward);
-                normalList.Add(Vector3.forward);
+            //    normalList.Add(Vector3.forward);
+            //    normalList.Add(Vector3.forward);
 
-                if (i < xsize)
-                {
-                    sub1indexList.Add(vcount + i * 4 + 0);
-                    sub1indexList.Add(vcount + i * 4 + 1);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 1);
+            //    if (i < xsize)
+            //    {
+            //        sub1indexList.Add(vcount + i * 4 + 0);
+            //        sub1indexList.Add(vcount + i * 4 + 1);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 1);
 
-                    sub1indexList.Add(vcount + i * 4 + 0);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 1);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 0);
+            //        sub1indexList.Add(vcount + i * 4 + 0);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 1);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 0);
 
-                    sub1indexList.Add(vcount + i * 4 + 2);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 3);
-                    sub1indexList.Add(vcount + i * 4 + 3);
+            //        sub1indexList.Add(vcount + i * 4 + 2);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 3);
+            //        sub1indexList.Add(vcount + i * 4 + 3);
 
-                    sub1indexList.Add(vcount + i * 4 + 2);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 2);
-                    sub1indexList.Add(vcount + (i + 1) * 4 + 3);
-                }
-            }
+            //        sub1indexList.Add(vcount + i * 4 + 2);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 2);
+            //        sub1indexList.Add(vcount + (i + 1) * 4 + 3);
+            //    }
+            //}
 
-            mesh.subMeshCount = 2;
+            //mesh.subMeshCount = 2;
             mesh.SetVertices(vertexList);
             mesh.SetUVs(0, uvList);
             mesh.SetNormals(normalList);
             mesh.SetTriangles(sub0indexList, 0);
-            mesh.SetTriangles(sub1indexList, 1);
+            //mesh.SetTriangles(sub1indexList, 1);
             
             return mesh;
         }
@@ -176,8 +177,11 @@ namespace ASL.LiquidSimulator
         {
             if (m_LiquidMaterial)
                 Object.Destroy(m_LiquidMaterial);
+            //if (m_LiquidBodyMaterial)
+            //    Object.Destroy(m_LiquidBodyMaterial);
             if (m_LiquidMesh)
                 Object.Destroy(m_LiquidMesh);
+            
             m_LiquidMaterial = null;
             m_LiquidMesh = null;
         }
