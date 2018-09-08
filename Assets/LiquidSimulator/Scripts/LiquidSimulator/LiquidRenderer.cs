@@ -13,6 +13,10 @@ public class LiquidRenderer : MonoBehaviour
     /// 网格大小
     /// </summary>
     public float cellSize;
+
+    public float offset;
+
+    public float waveOffset;
     /// <summary>
     /// 水体宽度
     /// </summary>
@@ -39,6 +43,19 @@ public class LiquidRenderer : MonoBehaviour
     public float forceFactor;
 
     public float fade = 1.0f;
+
+    public float specular;
+
+    public float gloss;
+
+    public float refract;
+
+    public float height;
+
+    public Vector2 range;
+
+    public Color shallowColor;
+    public Color deepColor;
 
     public LayerMask interactLayer;
 
@@ -67,7 +84,8 @@ public class LiquidRenderer : MonoBehaviour
             return;
         }
 
-        float fac = velocity * velocity * 0.02f * 0.02f / (cellSize * cellSize);
+        waveOffset = 1.0f/waveOffset;
+        float fac = velocity * velocity * 0.02f * 0.02f / (waveOffset * waveOffset);
         float i = viscosity * 0.02f - 2;
         float j = viscosity * 0.02f + 2;
 
@@ -79,7 +97,7 @@ public class LiquidRenderer : MonoBehaviour
 
         m_Camera.Init(interactLayer, width, length, depth, forceFactor, fade,
             new Vector4(transform.up.x, transform.up.y, transform.up.z,
-                -Vector3.Dot(transform.up, transform.position)), new Vector4(k1, k2, k3, 0.005f), 1024);
+                -Vector3.Dot(transform.up, transform.position)), new Vector4(k1, k2, k3, offset), 512);
         m_Camera.transform.SetParent(transform);
         m_Camera.transform.localPosition = Vector3.zero;
         m_Camera.transform.localEulerAngles = new Vector3(90, 0, 0);
@@ -87,6 +105,16 @@ public class LiquidRenderer : MonoBehaviour
         m_Geometry = new LiquidGeometry(gameObject, cellSize, width, length, depth);
         m_Geometry.SetLiquidHeightMap(m_Camera.HeightMap);
         m_Geometry.SetLiquidReflectMap(m_Camera.ReflectMap);
+
+        m_Geometry.LiquidMaterial.SetFloat("_Specular", specular);
+        m_Geometry.LiquidMaterial.SetFloat("_Gloss", gloss);
+        m_Geometry.LiquidMaterial.SetFloat("_Refract", refract);
+        m_Geometry.LiquidMaterial.SetFloat("_Height", height);
+
+        m_Geometry.LiquidMaterial.SetVector("_Range", range);
+
+        m_Geometry.LiquidMaterial.SetColor("_ShallowColor", shallowColor);
+        m_Geometry.LiquidMaterial.SetColor("_DeepColor", deepColor);
     }
 
     void Update()
@@ -106,7 +134,7 @@ public class LiquidRenderer : MonoBehaviour
 
     bool CheckSupport()
     {
-        if (cellSize <= 0)
+        if (offset <= 0)
         {
             return false;
         }
@@ -116,7 +144,7 @@ public class LiquidRenderer : MonoBehaviour
         }
         if (velocity < 0)
             return false;
-        float maxV = cellSize / (2 * 0.02f) * Mathf.Sqrt(viscosity * 0.02f + 2);
+        float maxV = offset / (2 * 0.02f) * Mathf.Sqrt(viscosity * 0.02f + 2);
         if (velocity >= maxV)
         {
             Debug.Log(maxV.ToString("f5"));
@@ -125,7 +153,7 @@ public class LiquidRenderer : MonoBehaviour
         }
         float viscositySq = viscosity * viscosity;
         float velocitySq = velocity * velocity;
-        float deltaSizeSq = cellSize * cellSize;
+        float deltaSizeSq = offset * offset;
         float dt = Mathf.Sqrt(viscositySq + 32 * velocitySq / (deltaSizeSq));
         float dtden = 8 * velocitySq / (deltaSizeSq);
         float maxT = (viscosity + dt) / dtden;

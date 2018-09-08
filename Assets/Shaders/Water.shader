@@ -130,7 +130,8 @@
 				UNITY_APPLY_FOG(i.fogCoord, col);
 
 				col.a = ranges.x;
-				return col;
+				return float4(height,height,height,1);
+				//return float4(normal, 1);
 			}
 			ENDCG
 		}

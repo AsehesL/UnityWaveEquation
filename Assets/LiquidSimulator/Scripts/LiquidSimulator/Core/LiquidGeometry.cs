@@ -6,6 +6,10 @@ namespace ASL.LiquidSimulator
 {
     public class LiquidGeometry
     {
+        public Material LiquidMaterial
+        {
+            get { return m_LiquidMaterial; }
+        }
 
         private Mesh m_LiquidMesh;
         private Material m_LiquidMaterial;

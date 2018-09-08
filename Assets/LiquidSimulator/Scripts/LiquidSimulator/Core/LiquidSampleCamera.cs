@@ -43,7 +43,7 @@ namespace ASL.LiquidSimulator
         void OnGUI()
         {
             if (m_CurTexture)
-                GUI.DrawTexture(new Rect(0, 0, 100, 100), m_CurTexture);
+                GUI.DrawTexture(new Rect(0, 0, 100, 100), m_HeightMap);
         }
 
         public void Init(LayerMask interactLayer, float width, float height, float depth, float force, float fade, Vector4 plane, Vector4 waveParams, int texSize)
@@ -92,6 +92,7 @@ namespace ASL.LiquidSimulator
             RenderTexture.active = tmp;
 
             m_Camera.targetTexture = m_CurTexture;
+            m_Camera.SetReplacementShader(m_ForceRenderShader, "RenderType");
             m_ReflectCamera.targetTexture = m_ReflectMap;
 
             Shader.SetGlobalFloat("internal_Force", force);
@@ -99,7 +100,7 @@ namespace ASL.LiquidSimulator
             m_WaveEquationMat = new Material(Shader.Find("Hidden/WaveEquationGen"));
             m_WaveEquationMat.SetVector("_WaveParams", m_WaveParams);
             m_WaveEquationMat.SetFloat("_Fade", fade);
-            m_WaveEquationMat.SetFloat("_Offset", 0.01f);
+            m_WaveEquationMat.SetFloat("_Offset", 0.02f);
         }
 
         void OnRenderImage(RenderTexture src, RenderTexture dst)
@@ -108,6 +109,22 @@ namespace ASL.LiquidSimulator
             m_WaveEquationMat.SetTexture("_PreTex", m_PreTexture);
 
             Graphics.Blit(src, dst, m_WaveEquationMat, 0);
+
+            //RenderTexture tmp = RenderTexture.GetTemporary(dst.width, dst.height);
+            //Graphics.Blit(dst, tmp, m_WaveEquationMat, 1);
+            //RenderTexture tmp2 = RenderTexture.GetTemporary(dst.width / 4, dst.height / 4);
+            //Graphics.Blit(tmp, tmp2);
+
+            //RenderTexture.ReleaseTemporary(tmp);
+            //tmp = RenderTexture.GetTemporary(dst.width / 4, dst.height / 4);
+            //m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0.01f, 0));
+            //Graphics.Blit(tmp2, tmp, m_WaveEquationMat, 2);
+            //m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0, 0.01f));
+            //Graphics.Blit(tmp, m_HeightMap, m_WaveEquationMat, 2);
+
+            //RenderTexture.ReleaseTemporary(tmp);
+            //RenderTexture.ReleaseTemporary(tmp2);
+
             Graphics.Blit(dst, m_HeightMap, m_WaveEquationMat, 1);
 
 

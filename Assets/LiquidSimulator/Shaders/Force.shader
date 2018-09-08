@@ -6,26 +6,6 @@
 	SubShader
 	{
 		Tags { "RenderType"="Opaque" }
-		
-		Pass
-		{
-			CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
-
-			#include "UnityCG.cginc"
-
-			float4 vert(float4 vertex:POSITION) : SV_POSITION
-			{
-				return UnityObjectToClipPos(vertex);
-			}
-
-			fixed4 frag(float4 i:SV_POSITION) : SV_Target
-			{
-				return fixed4(0, 0, 0, 1.0);
-			}
-			ENDCG
-		}
 
 		Pass
 		{
@@ -46,6 +26,8 @@
 				float depth : TEXCOORD0;
 				float4 vertex : SV_POSITION;
 			};
+
+			float internal_Force;
 			
 			v2f vert (appdata v)
 			{
@@ -57,7 +39,28 @@
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				return fixed4(i.depth, i.depth, i.depth, 1.0);
+				//return EncodeFloatRGBA(i.depth*internal_Force);
+				return fixed4(i.depth*internal_Force, i.depth*internal_Force, i.depth*internal_Force, 1.0);
+			}
+			ENDCG
+		}
+
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+
+			float4 vert(float4 vertex:POSITION) : SV_POSITION
+			{
+				return UnityObjectToClipPos(vertex);
+			}
+
+			fixed4 frag(float4 i:SV_POSITION) : SV_Target
+			{
+				return fixed4(0, 0, 0, 1.0);
 			}
 			ENDCG
 		}
