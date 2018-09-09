@@ -39,6 +39,7 @@
 			}
 			
 			sampler2D _MainTex;
+			//float4 _MainTex_TexelSize;
 			sampler2D _PreTex;
 			//sampler2D _ForceTex;
 
@@ -53,7 +54,7 @@
 				float cur = _WaveParams.x*tex2D(_MainTex, i.uv).r;
 				
 				float rg = _WaveParams.z*(tex2D(_MainTex, i.uv + float2(_WaveParams.w, 0)).r + tex2D(_MainTex, i.uv + float2(-_WaveParams.w,0)).r
-				+ tex2D(_MainTex, i.uv + float2(0,_WaveParams.w)).r + tex2D(_MainTex, i.uv + float2(0,-_WaveParams.w)).r);
+				+ tex2D(_MainTex, i.uv + float2(0, _WaveParams.w)).r + tex2D(_MainTex, i.uv + float2(0,-_WaveParams.w)).r);
 
 				float pre = _WaveParams.y*tex2D(_PreTex, i.uv).r;
 				
@@ -95,21 +96,27 @@
 			}
 
 			sampler2D _MainTex;
+			float4 _MainTex_TexelSize;
 
-			float _Offset;
+			//float _Offset;
 
 			fixed4 frag(v2f i) : SV_Target
 			{
-				float ch = DecodeFloatRGBA(tex2D(_MainTex, i.uv));
-				float lh = DecodeFloatRGBA(tex2D(_MainTex, i.uv + float2(-_Offset, 0.0)));
-				float rh = DecodeFloatRGBA(tex2D(_MainTex, i.uv + float2(_Offset, 0.0)));
-				float bh = DecodeFloatRGBA(tex2D(_MainTex, i.uv + float2(0.0, -_Offset)));
-				float th = DecodeFloatRGBA(tex2D(_MainTex, i.uv + float2(0.0, _Offset)));
+				//float ch = tex2D(_MainTex, i.uv).r;
+				float lh = tex2D(_MainTex, i.uv + float2(-_MainTex_TexelSize.x, 0.0)).r * 30;
+				float rh = tex2D(_MainTex, i.uv + float2(_MainTex_TexelSize.x, 0.0)).r * 30;
+				float bh = tex2D(_MainTex, i.uv + float2(0.0, -_MainTex_TexelSize.y)).r * 30;
+				float th = tex2D(_MainTex, i.uv + float2(0.0, _MainTex_TexelSize.y)).r * 30;
 
 				float3 normal = normalize(float3(lh - rh, bh - th, 1.0));
 				
 
-				return EncodeDepthNormal(ch, normal);
+				//return EncodeDepthNormal(ch, normal);
+#if defined(UNITY_NO_DXT5nm)
+				return float4(normal*0.5 + 0.5, 1.0);
+#else
+				return float4(0, normal.y*0.5+0.5, 0, normal.x*0.5+0.5);
+#endif
 			}
 			ENDCG
 		}
@@ -147,11 +154,11 @@
 
 			fixed4 frag(v2f i) : SV_Target
 			{
-				float4 col = tex2D(_MainTex, i.uv).r*0.45;
-				col += tex2D(_MainTex, i.uv + _BlurOffset).r*0.15;
-				col += tex2D(_MainTex, i.uv - _BlurOffset).r*0.15;
-				col += tex2D(_MainTex, i.uv + _BlurOffset*2).r*0.125;
-				col += tex2D(_MainTex, i.uv - _BlurOffset*2).r*0.125;
+				float4 col = tex2D(_MainTex, i.uv)*0.45;
+				col += tex2D(_MainTex, i.uv + _BlurOffset)*0.15;
+				col += tex2D(_MainTex, i.uv - _BlurOffset)*0.15;
+				col += tex2D(_MainTex, i.uv + _BlurOffset*2)*0.125;
+				col += tex2D(_MainTex, i.uv - _BlurOffset*2)*0.125;
 
 				return col;
 			}

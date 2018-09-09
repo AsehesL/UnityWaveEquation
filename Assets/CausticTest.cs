@@ -6,6 +6,9 @@ public class CausticTest : MonoBehaviour
 
     public MeshRenderer targetRenderer;
     public LiquidRenderer liquid;
+
+
+    public MeshRenderer testRenderer;
     
     void Start()
     {
@@ -14,6 +17,10 @@ public class CausticTest : MonoBehaviour
     
     void Update()
     {
+        if (testRenderer)
+        {
+            testRenderer.sharedMaterial.SetTexture("_BumpMap", liquid.NormalMap);
+        }
         if (!targetRenderer || !liquid)
             return;
         Vector4 plane = new Vector4(liquid.transform.up.x, liquid.transform.up.y, liquid.transform.up.z,

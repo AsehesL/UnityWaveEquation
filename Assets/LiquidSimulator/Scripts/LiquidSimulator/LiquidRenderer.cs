@@ -14,7 +14,7 @@ public class LiquidRenderer : MonoBehaviour
     /// </summary>
     public float cellSize;
 
-    public float offset;
+    //public float offset;
 
     public float waveOffset;
     /// <summary>
@@ -68,6 +68,11 @@ public class LiquidRenderer : MonoBehaviour
     {
         get { return m_Camera ? m_Camera.HeightMap : null; }
     }
+
+    public RenderTexture NormalMap
+    {
+        get { return m_Camera ? m_Camera.NormalMap : null; }
+    }
     #endregion
 
     private bool m_IsSupported;
@@ -76,16 +81,19 @@ public class LiquidRenderer : MonoBehaviour
     private LiquidGeometry m_Geometry;
 
 
-    void Start () {
-        m_IsSupported = CheckSupport();
+    void Start ()
+    {
+        float offset = waveOffset;
+        m_IsSupported = CheckSupport(offset);
         if (!m_IsSupported)
         {
             Debug.LogError("初始化失败");
             return;
         }
 
-        waveOffset = 1.0f/waveOffset;
-        float fac = velocity * velocity * 0.02f * 0.02f / (waveOffset * waveOffset);
+        //waveOffset = 1.0f/waveOffset;
+
+        float fac = velocity * velocity * 0.02f * 0.02f / (offset * offset);
         float i = viscosity * 0.02f - 2;
         float j = viscosity * 0.02f + 2;
 
@@ -104,6 +112,7 @@ public class LiquidRenderer : MonoBehaviour
 
         m_Geometry = new LiquidGeometry(gameObject, cellSize, width, length, depth);
         m_Geometry.SetLiquidHeightMap(m_Camera.HeightMap);
+        m_Geometry.SetLiquidNormalMap(m_Camera.NormalMap);
         m_Geometry.SetLiquidReflectMap(m_Camera.ReflectMap);
 
         m_Geometry.LiquidMaterial.SetFloat("_Specular", specular);
@@ -132,7 +141,7 @@ public class LiquidRenderer : MonoBehaviour
         m_Geometry = null;
     }
 
-    bool CheckSupport()
+    bool CheckSupport(float offset)
     {
         if (offset <= 0)
         {

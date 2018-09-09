@@ -14,6 +14,13 @@ namespace ASL.LiquidSimulator
                 return m_HeightMap;
             }
         }
+        public RenderTexture NormalMap
+        {
+            get
+            {
+                return m_NormalMap;
+            }
+        }
 
         public RenderTexture ReflectMap
         {
@@ -30,6 +37,7 @@ namespace ASL.LiquidSimulator
         private RenderTexture m_CurTexture;
         private RenderTexture m_PreTexture;
         private RenderTexture m_HeightMap;
+        private RenderTexture m_NormalMap;
         private RenderTexture m_ReflectMap;
 
         private Shader m_ForceRenderShader;
@@ -75,9 +83,12 @@ namespace ASL.LiquidSimulator
             m_CurTexture.name = "[Cur]";
             m_PreTexture = RenderTexture.GetTemporary(texSize, texSize, 16);
             m_PreTexture.name = "[Pre]";
-            m_HeightMap = RenderTexture.GetTemporary(texSize, texSize, 16);
+            m_HeightMap = RenderTexture.GetTemporary(1024, 1024, 16);
             m_HeightMap.name = "[HeightMap]";
-            m_HeightMap.wrapMode = TextureWrapMode.Repeat;
+            m_NormalMap = RenderTexture.GetTemporary(256, 256, 16);
+            m_NormalMap.filterMode = FilterMode.Bilinear;
+            m_NormalMap.anisoLevel = 1;
+            m_NormalMap.name = "[NormalMap]";
             m_ReflectMap = RenderTexture.GetTemporary(texSize, texSize, 16);
             m_ReflectMap.name = "[HeightMap]";
 
@@ -110,22 +121,30 @@ namespace ASL.LiquidSimulator
 
             Graphics.Blit(src, dst, m_WaveEquationMat, 0);
 
-            //RenderTexture tmp = RenderTexture.GetTemporary(dst.width, dst.height);
+            RenderTexture tmp = RenderTexture.GetTemporary(dst.width / 4, dst.height / 4);
             //Graphics.Blit(dst, tmp, m_WaveEquationMat, 1);
-            //RenderTexture tmp2 = RenderTexture.GetTemporary(dst.width / 4, dst.height / 4);
+            RenderTexture tmp2 = RenderTexture.GetTemporary(dst.width / 4, dst.height / 4);
             //Graphics.Blit(tmp, tmp2);
 
             //RenderTexture.ReleaseTemporary(tmp);
             //tmp = RenderTexture.GetTemporary(dst.width / 4, dst.height / 4);
-            //m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0.01f, 0));
-            //Graphics.Blit(tmp2, tmp, m_WaveEquationMat, 2);
-            //m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0, 0.01f));
-            //Graphics.Blit(tmp, m_HeightMap, m_WaveEquationMat, 2);
+            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0.01f, 0));
+            Graphics.Blit(dst, tmp, m_WaveEquationMat, 2);
+            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0, 0.01f));
+            Graphics.Blit(tmp, tmp2, m_WaveEquationMat, 2);
 
+            Graphics.Blit(tmp2, m_HeightMap);
             //RenderTexture.ReleaseTemporary(tmp);
             //RenderTexture.ReleaseTemporary(tmp2);
 
-            Graphics.Blit(dst, m_HeightMap, m_WaveEquationMat, 1);
+            Graphics.Blit(m_HeightMap, tmp, m_WaveEquationMat, 1);
+            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0.01f, 0));
+            Graphics.Blit(tmp, tmp2, m_WaveEquationMat, 2);
+            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0, 0.01f));
+            Graphics.Blit(tmp2, tmp, m_WaveEquationMat, 2);
+            Graphics.Blit(tmp, m_NormalMap);
+            RenderTexture.ReleaseTemporary(tmp);
+            RenderTexture.ReleaseTemporary(tmp2);
 
 
             Graphics.Blit(src, m_PreTexture);
@@ -197,6 +216,8 @@ namespace ASL.LiquidSimulator
                 RenderTexture.ReleaseTemporary(m_PreTexture);
             if (m_HeightMap)
                 RenderTexture.ReleaseTemporary(m_HeightMap);
+            if (m_NormalMap)
+                RenderTexture.ReleaseTemporary(m_NormalMap);
             if (m_ReflectCamera)
                 Destroy(m_ReflectCamera.gameObject);
             //if (m_CommandBuffer != null)

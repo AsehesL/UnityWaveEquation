@@ -41,6 +41,13 @@ namespace ASL.LiquidSimulator
             if (m_LiquidMaterial)
                 m_LiquidMaterial.SetTexture("_LiquidHeightMap", heightMap);
         }
+
+        public void SetLiquidNormalMap(RenderTexture normalMap)
+        {
+            if (m_LiquidMaterial)
+                m_LiquidMaterial.SetTexture("_LiquidNormalMap", normalMap);
+        }
+
         public void SetLiquidReflectMap(RenderTexture reflectMap)
         {
             if (m_LiquidMaterial)
@@ -172,6 +179,8 @@ namespace ASL.LiquidSimulator
             mesh.SetUVs(0, uvList);
             mesh.SetNormals(normalList);
             mesh.SetTriangles(sub0indexList, 0);
+            mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
             //mesh.SetTriangles(sub1indexList, 1);
             
             return mesh;

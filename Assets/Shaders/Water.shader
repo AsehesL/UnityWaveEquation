@@ -46,6 +46,7 @@
 
 			sampler2D _GrabTexture;
 			sampler2D _LiquidHeightMap;
+			sampler2D _LiquidNormalMap;
 			sampler2D _LiquidReflectMap;
 			sampler2D_float _CameraDepthTexture;
 
@@ -69,7 +70,8 @@
 				o.proj1 = ComputeScreenPos(projPos);
 
 				float height = tex2Dlod(_LiquidHeightMap, float4(v.texcoord.xy,0,0));
-				v.vertex.y += (height-0.5)*_Height;
+				//v.vertex.y += (height-0.5)*_Height;
+				v.vertex.y += height*_Height;
 				o.uv = v.texcoord;
 				UNITY_TRANSFER_FOG(o,o.vertex);
 				o.vertex = UnityObjectToClipPos(v.vertex);
@@ -98,10 +100,12 @@
 				ranges.y = 1.0 - ranges.y;
 				ranges.y = lerp(ranges.y, ranges.y * ranges.y * ranges.y, 0.5);
 				
-				float4 heightMapCol = tex2D(_LiquidHeightMap, i.uv);
-				float height;
-				float3 normal;
-				DecodeDepthNormal(heightMapCol, height, normal);
+				//float4 heightMapCol = tex2D(_LiquidHeightMap, i.uv);
+				//float height;
+				//float3 normal;
+				//DecodeDepthNormal(heightMapCol, height, normal);
+				float height = tex2D(_LiquidHeightMap, i.uv).r;
+				float3 normal = UnpackNormal(tex2D(_LiquidNormalMap, i.uv));
 
 				float3 worldNormal = float3(dot(i.TW0.xyz, normal), dot(i.TW1.xyz, normal), dot(i.TW2.xyz, normal));
 				float3 worldPos = float3(i.TW0.w, i.TW1.w, i.TW2.w);
@@ -130,8 +134,10 @@
 				UNITY_APPLY_FOG(i.fogCoord, col);
 
 				col.a = ranges.x;
-				return float4(height,height,height,1);
+				//return float4(height,height,height,1);
 				//return float4(normal, 1);
+				//return tex2D(_LiquidNormalMap, i.uv);
+				return col;
 			}
 			ENDCG
 		}
