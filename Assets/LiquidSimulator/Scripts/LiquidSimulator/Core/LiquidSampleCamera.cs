@@ -69,7 +69,7 @@ namespace ASL.LiquidSimulator
             m_Camera.orthographic = true;
             m_Camera.orthographicSize = height * 0.5f;
             //m_Camera.clearFlags = CameraClearFlags.SolidColor;
-            m_Camera.clearFlags = CameraClearFlags.Nothing;
+            m_Camera.clearFlags = CameraClearFlags.Depth;
             m_Camera.allowHDR = false;
 
             m_ReflectCamera = new GameObject("[ReflectCamera]").AddComponent<Camera>();
