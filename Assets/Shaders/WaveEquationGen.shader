@@ -103,10 +103,10 @@
 			fixed4 frag(v2f i) : SV_Target
 			{
 				float ch = tex2D(_MainTex, i.uv).r * 60;
-				float lh = tex2D(_MainTex, i.uv + float2(-_MainTex_TexelSize.x, 0.0)).r * 60;
-				float rh = tex2D(_MainTex, i.uv + float2(_MainTex_TexelSize.x, 0.0)).r * 60;
-				float bh = tex2D(_MainTex, i.uv + float2(0.0, -_MainTex_TexelSize.y)).r * 60;
-				float th = tex2D(_MainTex, i.uv + float2(0.0, _MainTex_TexelSize.y)).r * 60;
+				float lh = tex2D(_MainTex, i.uv + float2(-_MainTex_TexelSize.x*0.5, 0.0)).r * 60;
+				float rh = tex2D(_MainTex, i.uv + float2(_MainTex_TexelSize.x*0.5, 0.0)).r * 60;
+				float bh = tex2D(_MainTex, i.uv + float2(0.0, -_MainTex_TexelSize.y*0.5)).r * 60;
+				float th = tex2D(_MainTex, i.uv + float2(0.0, _MainTex_TexelSize.y*0.5)).r * 60;
 
 				float3 va = normalize(float3(2.0, 0.0, rh - lh));
 				float3 vb = normalize(float3(0.0, 2.0, th - bh));

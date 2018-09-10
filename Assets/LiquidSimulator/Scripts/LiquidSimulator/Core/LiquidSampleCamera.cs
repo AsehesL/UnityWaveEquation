@@ -6,7 +6,6 @@ namespace ASL.LiquidSimulator
 {
     public class LiquidSampleCamera : MonoBehaviour
     {
-        //private CommandBuffer m_CommandBuffer;
         public RenderTexture HeightMap
         {
             get
@@ -43,7 +42,6 @@ namespace ASL.LiquidSimulator
         private Shader m_ForceRenderShader;
 
         private Material m_WaveEquationMat;
-        //private Material m_TargetMaterial;
 
         private Vector4 m_WaveParams;
         private Vector4 m_Plane;
@@ -85,7 +83,7 @@ namespace ASL.LiquidSimulator
             m_PreTexture.name = "[Pre]";
             m_HeightMap = RenderTexture.GetTemporary(1024, 1024, 16);
             m_HeightMap.name = "[HeightMap]";
-            m_NormalMap = RenderTexture.GetTemporary(256, 256, 16);
+            m_NormalMap = RenderTexture.GetTemporary(1024, 1024, 16);
             m_NormalMap.filterMode = FilterMode.Bilinear;
             m_NormalMap.anisoLevel = 1;
             m_NormalMap.name = "[NormalMap]";
@@ -121,30 +119,20 @@ namespace ASL.LiquidSimulator
 
             Graphics.Blit(src, dst, m_WaveEquationMat, 0);
 
-            RenderTexture tmp = RenderTexture.GetTemporary(dst.width / 4, dst.height / 4);
-            //Graphics.Blit(dst, tmp, m_WaveEquationMat, 1);
-            RenderTexture tmp2 = RenderTexture.GetTemporary(dst.width / 4, dst.height / 4);
-            //Graphics.Blit(tmp, tmp2);
 
-            //RenderTexture.ReleaseTemporary(tmp);
-            //tmp = RenderTexture.GetTemporary(dst.width / 4, dst.height / 4);
-            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0.01f, 0));
-            Graphics.Blit(dst, tmp, m_WaveEquationMat, 2);
-            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0, 0.01f));
-            Graphics.Blit(tmp, tmp2, m_WaveEquationMat, 2);
+            Blur(dst, m_HeightMap, 0.01f);
+            
+            Graphics.Blit(m_HeightMap, m_NormalMap, m_WaveEquationMat, 1);
 
-            Graphics.Blit(tmp2, m_HeightMap);
+
+            //Graphics.Blit(m_HeightMap, tmp, m_WaveEquationMat, 1);
+            //m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0.01f, 0));
+            //Graphics.Blit(tmp, tmp2, m_WaveEquationMat, 2);
+            //m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0, 0.01f));
+            //Graphics.Blit(tmp2, tmp, m_WaveEquationMat, 2);
+            //Graphics.Blit(tmp, m_NormalMap);
             //RenderTexture.ReleaseTemporary(tmp);
             //RenderTexture.ReleaseTemporary(tmp2);
-
-            Graphics.Blit(m_HeightMap, tmp, m_WaveEquationMat, 1);
-            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0.01f, 0));
-            Graphics.Blit(tmp, tmp2, m_WaveEquationMat, 2);
-            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0, 0.01f));
-            Graphics.Blit(tmp2, tmp, m_WaveEquationMat, 2);
-            Graphics.Blit(tmp, m_NormalMap);
-            RenderTexture.ReleaseTemporary(tmp);
-            RenderTexture.ReleaseTemporary(tmp2);
 
 
             Graphics.Blit(src, m_PreTexture);
@@ -184,6 +172,22 @@ namespace ASL.LiquidSimulator
             return m;
         }
 
+        private void Blur(RenderTexture src, RenderTexture dst, float offset)
+        {
+            RenderTexture tmp = RenderTexture.GetTemporary(src.width / 4, src.height / 4);
+            RenderTexture tmp2 = RenderTexture.GetTemporary(src.width / 4, src.height / 4);
+   
+            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(offset, 0));
+            Graphics.Blit(src, tmp, m_WaveEquationMat, 2);
+            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0, offset));
+            Graphics.Blit(tmp, tmp2, m_WaveEquationMat, 2);
+
+            Graphics.Blit(tmp2, dst);
+
+            RenderTexture.ReleaseTemporary(tmp);
+            RenderTexture.ReleaseTemporary(tmp2);
+        }
+
         private Matrix4x4 ObliqueMatrix(Vector4 plane, Camera reflectCamera)
         {
             //世界空间的平面先变换到相机空间
@@ -220,13 +224,6 @@ namespace ASL.LiquidSimulator
                 RenderTexture.ReleaseTemporary(m_NormalMap);
             if (m_ReflectCamera)
                 Destroy(m_ReflectCamera.gameObject);
-            //if (m_CommandBuffer != null)
-            //{
-            //    if (m_Camera)
-            //        m_Camera.RemoveCommandBuffer(CameraEvent.AfterImageEffectsOpaque, m_CommandBuffer);
-            //    m_CommandBuffer.Release();
-            //    m_CommandBuffer = null;
-            //}
             m_ForceRenderShader = null;
         }
     }
