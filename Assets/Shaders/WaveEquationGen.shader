@@ -43,7 +43,7 @@
 			sampler2D _PreTex;
 			//sampler2D _ForceTex;
 
-			float _Fade;
+			//float _Fade;
 
 			half4 _WaveParams;
 
@@ -58,7 +58,7 @@
 
 				float pre = _WaveParams.y*tex2D(_PreTex, i.uv).r;
 				
-				cur += rg + pre*_Fade;
+				cur += rg + pre;
 				cur = saturate(cur);
 
 				//return EncodeFloatRGBA(cur);

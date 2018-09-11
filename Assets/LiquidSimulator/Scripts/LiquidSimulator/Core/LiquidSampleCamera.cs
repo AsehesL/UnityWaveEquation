@@ -30,7 +30,6 @@ namespace ASL.LiquidSimulator
         }
 
         private Camera m_Camera;
-
         private Camera m_ReflectCamera;
 
         private RenderTexture m_CurTexture;
@@ -52,7 +51,18 @@ namespace ASL.LiquidSimulator
                 GUI.DrawTexture(new Rect(0, 0, 100, 100), m_HeightMap);
         }
 
-        public void Init(LayerMask interactLayer, float width, float height, float depth, float force, float fade, Vector4 plane, Vector4 waveParams, int texSize)
+        void Update()
+        {
+            if (m_ReflectCamera)
+            {
+                m_ReflectCamera.CopyFrom(Camera.current);
+                m_ReflectCamera.targetTexture = m_ReflectMap;
+                m_ReflectCamera.worldToCameraMatrix = m_ReflectCamera.worldToCameraMatrix*ReflectMatrix(m_Plane);
+                m_ReflectCamera.projectionMatrix = ObliqueMatrix(m_Plane, Camera.current);
+            }
+        }
+
+        public void Init(LayerMask interactLayer, float width, float height, float depth, float force, Vector4 plane, Vector4 waveParams, int texSize)
         {
             m_WaveParams = waveParams;
             m_Plane = plane;
@@ -72,7 +82,7 @@ namespace ASL.LiquidSimulator
 
             m_ReflectCamera = new GameObject("[ReflectCamera]").AddComponent<Camera>();
             //m_ReflectCamera.hideFlags = HideFlags.HideInHierarchy;
-            m_ReflectCamera.CopyFrom(Camera.main);
+            //m_ReflectCamera.CopyFrom(Camera.main);
             m_ReflectCamera.enabled = false;
 
             m_ForceRenderShader = Shader.Find("Hidden/LiquidSimulator/Force");
@@ -108,8 +118,8 @@ namespace ASL.LiquidSimulator
 
             m_WaveEquationMat = new Material(Shader.Find("Hidden/WaveEquationGen"));
             m_WaveEquationMat.SetVector("_WaveParams", m_WaveParams);
-            m_WaveEquationMat.SetFloat("_Fade", fade);
-            m_WaveEquationMat.SetFloat("_Offset", 0.02f);
+            //m_WaveEquationMat.SetFloat("_Fade", fade);
+            //m_WaveEquationMat.SetFloat("_Offset", 0.02f);
         }
 
         void OnRenderImage(RenderTexture src, RenderTexture dst)
@@ -121,26 +131,11 @@ namespace ASL.LiquidSimulator
 
 
             Blur(dst, m_HeightMap, 0.01f);
-            
-            Graphics.Blit(m_HeightMap, m_NormalMap, m_WaveEquationMat, 1);
 
-
-            //Graphics.Blit(m_HeightMap, tmp, m_WaveEquationMat, 1);
-            //m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0.01f, 0));
-            //Graphics.Blit(tmp, tmp2, m_WaveEquationMat, 2);
-            //m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0, 0.01f));
-            //Graphics.Blit(tmp2, tmp, m_WaveEquationMat, 2);
-            //Graphics.Blit(tmp, m_NormalMap);
-            //RenderTexture.ReleaseTemporary(tmp);
-            //RenderTexture.ReleaseTemporary(tmp2);
+            RenderNormalMap(m_HeightMap, m_NormalMap);
 
 
             Graphics.Blit(src, m_PreTexture);
-
-            m_ReflectCamera.CopyFrom(Camera.main);
-            m_ReflectCamera.targetTexture = m_ReflectMap;
-            m_ReflectCamera.worldToCameraMatrix = m_ReflectCamera.worldToCameraMatrix * ReflectMatrix(m_Plane);
-            m_ReflectCamera.projectionMatrix = ObliqueMatrix(m_Plane, Camera.main);
 
             GL.invertCulling = true;
 
@@ -170,6 +165,20 @@ namespace ASL.LiquidSimulator
             m.m30 = 0; m.m31 = 0;
             m.m32 = 0; m.m33 = 1;
             return m;
+        }
+
+        private void RenderNormalMap(RenderTexture src, RenderTexture dst)
+        {
+            RenderTexture tmp = RenderTexture.GetTemporary(src.width / 4, src.height / 4);
+            RenderTexture tmp2 = RenderTexture.GetTemporary(src.width / 4, src.height / 4);
+            Graphics.Blit(src, tmp, m_WaveEquationMat, 1);
+            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0.01f, 0));
+            Graphics.Blit(tmp, tmp2, m_WaveEquationMat, 2);
+            m_WaveEquationMat.SetVector("_BlurOffset", new Vector4(0, 0.01f));
+            Graphics.Blit(tmp2, tmp, m_WaveEquationMat, 2);
+            Graphics.Blit(tmp, dst);
+            RenderTexture.ReleaseTemporary(tmp);
+            RenderTexture.ReleaseTemporary(tmp2);
         }
 
         private void Blur(RenderTexture src, RenderTexture dst, float offset)
