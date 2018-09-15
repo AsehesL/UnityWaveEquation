@@ -111,6 +111,12 @@ public class LiquidSimulator : MonoBehaviour
 
         m_SampleSpacing = 1.0f/heightMapSize*0.5f;
 
+        m_SampleCamera = new GameObject("[LiquidSampleCamera]").AddComponent<LiquidSampleCamera>();
+        m_SampleCamera.transform.SetParent(transform);
+        m_SampleCamera.transform.localPosition = Vector3.zero;
+        m_SampleCamera.transform.localEulerAngles = Vector3.zero;
+        //m_SampleCamera.Init(m_InteractLayer, liquidWidth, liquidLength, liquidDepth, m_ForceFactor,)
+
         m_Renderer = new GameObject("[LiquidRenderer]").AddComponent<LiquidRenderer>();
         m_Renderer.transform.SetParent(transform);
         m_Renderer.transform.localPosition = Vector3.zero;
@@ -141,25 +147,10 @@ public class LiquidSimulator : MonoBehaviour
             Debug.LogError("液体深度不允许小于等于0！");
             return false;
         }
-        
 
-        m_MaxVelocity = m_SampleSpacing / (2 * Time.fixedDeltaTime) * Mathf.Sqrt(m_Viscosity * Time.fixedDeltaTime + 2);
-        float velocity = m_MaxVelocity * m_Velocity;
-        float viscositySq = m_Viscosity * m_Viscosity;
-        float velocitySq = velocity * velocity;
-        float deltaSizeSq = m_SampleSpacing * m_SampleSpacing;
-        float dt = Mathf.Sqrt(viscositySq + 32 * velocitySq / (deltaSizeSq));
-        float dtden = 8 * velocitySq / (deltaSizeSq);
-        float maxT = (m_Viscosity + dt) / dtden;
-        float maxT2 = (m_Viscosity - dt) / dtden;
-        if (maxT2 > 0 && maxT2 < maxT)
-            maxT = maxT2;
-        if (maxT < Time.fixedDeltaTime)
-        {
-            Debug.LogError("粘度系数不符合要求");
+
+        if (!RefreshLiquidParams(m_Velocity, m_Viscosity))
             return false;
-        }
-        RefreshLiquidParams();
 
         return true;
     }
@@ -204,6 +195,8 @@ public class LiquidSimulator : MonoBehaviour
         m_LiquidParams = new Vector3(k1, k2, k3);
         m_Velocity = speed;
         m_Viscosity = viscosity;
+
+        return true;
     }
 
     void OnDrawGizmosSelected()
