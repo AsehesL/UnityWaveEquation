@@ -51,13 +51,13 @@ namespace ASL.LiquidSimulator
                 GUI.DrawTexture(new Rect(0, 0, 100, 100), m_HeightMap);
         }
 
-        void Update()
+        void OnRenderObject()
         {
             if (m_ReflectCamera)
             {
                 m_ReflectCamera.CopyFrom(Camera.current);
                 m_ReflectCamera.targetTexture = m_ReflectMap;
-                m_ReflectCamera.worldToCameraMatrix = m_ReflectCamera.worldToCameraMatrix*ReflectMatrix(m_Plane);
+                m_ReflectCamera.worldToCameraMatrix = m_ReflectCamera.worldToCameraMatrix * ReflectMatrix(m_Plane);
                 m_ReflectCamera.projectionMatrix = ObliqueMatrix(m_Plane, Camera.current);
             }
         }
