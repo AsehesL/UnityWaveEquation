@@ -30,6 +30,7 @@
 			#pragma multi_compile_fog
 			
 			#include "UnityCG.cginc"
+			#include "Temp.cginc"
 			#include "Lighting.cginc"
 
 			struct v2f
@@ -69,7 +70,7 @@
 				o.proj0 = ComputeGrabScreenPos(projPos);
 				o.proj1 = ComputeScreenPos(projPos);
 
-				float height = tex2Dlod(_LiquidHeightMap, float4(v.texcoord.xy,0,0));
+				float height = TempDecode(tex2Dlod(_LiquidHeightMap, float4(v.texcoord.xy,0,0)));
 				//v.vertex.y += (height-0.5)*_Height;
 				v.vertex.y += height*_Height;
 				o.uv = v.texcoord;
@@ -104,7 +105,6 @@
 				//float height;
 				//float3 normal;
 				//DecodeDepthNormal(heightMapCol, height, normal);
-				float height = tex2D(_LiquidHeightMap, i.uv).r;
 				float3 normal = UnpackNormal(tex2D(_LiquidNormalMap, i.uv));
 
 				float3 worldNormal = float3(dot(i.TW0.xyz, normal), dot(i.TW1.xyz, normal), dot(i.TW2.xyz, normal));

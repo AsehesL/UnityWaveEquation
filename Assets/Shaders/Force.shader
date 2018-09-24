@@ -15,6 +15,7 @@
 			#pragma fragment frag
 			
 			#include "UnityCG.cginc"
+			#include "Temp.cginc"
 
 			struct appdata
 			{
@@ -40,7 +41,8 @@
 			fixed4 frag (v2f i) : SV_Target
 			{
 				//return EncodeFloatRGBA(i.depth*internal_Force);
-				return fixed4(i.depth*internal_Force, i.depth*internal_Force, i.depth*internal_Force, 1.0);
+				//return fixed4(i.depth*internal_Force, i.depth*internal_Force, i.depth*internal_Force, 1.0);
+				return TempEncode(i.depth*internal_Force);
 			}
 			ENDCG
 		}

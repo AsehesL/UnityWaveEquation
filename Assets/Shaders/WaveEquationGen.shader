@@ -16,7 +16,8 @@
 			#pragma vertex vert
 			#pragma fragment frag
 			
-			#include "UnityCG.cginc"
+			#include "UnityCG.cginc" 
+			#include "Temp.cginc"
 
 			struct appdata
 			{
@@ -51,18 +52,21 @@
 			{
 				//float force = DecodeFloatRGBA(tex2D(_ForceTex, i.uv));
 				//float cur = _WaveParams.x*DecodeFloatRGBA(tex2D(_MainTex, i.uv)) + force;
-				float cur = _WaveParams.x*tex2D(_MainTex, i.uv).r;
+				float cur = _WaveParams.x*TempDecode(tex2D(_MainTex, i.uv));
 				
-				float rg = _WaveParams.z*(tex2D(_MainTex, i.uv + float2(_WaveParams.w, 0)).r + tex2D(_MainTex, i.uv + float2(-_WaveParams.w,0)).r
-				+ tex2D(_MainTex, i.uv + float2(0, _WaveParams.w)).r + tex2D(_MainTex, i.uv + float2(0,-_WaveParams.w)).r);
+				float rg = _WaveParams.z*(TempDecode(tex2D(_MainTex, i.uv + float2(_WaveParams.w, 0))) + TempDecode(tex2D(_MainTex, i.uv + float2(-_WaveParams.w,0)))
+				+ TempDecode(tex2D(_MainTex, i.uv + float2(0, _WaveParams.w))) + TempDecode(tex2D(_MainTex, i.uv + float2(0,-_WaveParams.w))));
 
-				float pre = _WaveParams.y*tex2D(_PreTex, i.uv).r;
+				float pre = _WaveParams.y*TempDecode(tex2D(_PreTex, i.uv));
 				
 				cur += rg + pre;
-				cur = saturate(cur);
+
+				cur *= 0.96;
+				//cur = saturate(cur);
 
 				//return EncodeFloatRGBA(cur);
-				return fixed4(cur, cur, cur, 1);
+				return TempEncode(cur);
+				//return fixed4(cur, cur, cur, 1);
 			}
 			ENDCG
 		}
@@ -74,6 +78,7 @@
 			#pragma fragment frag
 
 			#include "UnityCG.cginc"
+			#include "Temp.cginc"
 
 			struct appdata
 			{
@@ -102,17 +107,16 @@
 
 			fixed4 frag(v2f i) : SV_Target
 			{
-				float ch = tex2D(_MainTex, i.uv).r * 60;
-				float lh = tex2D(_MainTex, i.uv + float2(-_MainTex_TexelSize.x*0.5, 0.0)).r * 60;
-				float rh = tex2D(_MainTex, i.uv + float2(_MainTex_TexelSize.x*0.5, 0.0)).r * 60;
-				float bh = tex2D(_MainTex, i.uv + float2(0.0, -_MainTex_TexelSize.y*0.5)).r * 60;
-				float th = tex2D(_MainTex, i.uv + float2(0.0, _MainTex_TexelSize.y*0.5)).r * 60;
+				float lh = TempDecode(tex2D(_MainTex, i.uv + float2(-_MainTex_TexelSize.x, 0.0)));
+				float rh = TempDecode(tex2D(_MainTex, i.uv + float2(_MainTex_TexelSize.x, 0.0)));
+				float bh = TempDecode(tex2D(_MainTex, i.uv + float2(0.0, -_MainTex_TexelSize.y)));
+				float th = TempDecode(tex2D(_MainTex, i.uv + float2(0.0, _MainTex_TexelSize.y)));
 
-				float3 va = normalize(float3(2.0, 0.0, rh - lh));
-				float3 vb = normalize(float3(0.0, 2.0, th - bh));
+				//float3 va = normalize(float3(2.0, 0.0, rh - lh));
+				//float3 vb = normalize(float3(0.0, 2.0, th - bh));
 
-				//float3 normal = normalize(float3(lh - rh, bh - th, 1.0));
-				float3 normal = cross(va, vb);
+				float3 normal = normalize(float3(lh - rh, bh - th, 20.0*_MainTex_TexelSize.x));
+				//float3 normal = cross(va, vb);
 				
 
 				//return EncodeDepthNormal(ch, normal);

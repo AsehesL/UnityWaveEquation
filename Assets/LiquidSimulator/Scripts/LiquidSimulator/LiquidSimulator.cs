@@ -99,17 +99,17 @@ public class LiquidSimulator : MonoBehaviour
     private LiquidRenderer m_Renderer;
     private LiquidSampleCamera m_SampleCamera;
 
-    private Vector3 m_LiquidParams;
+    private Vector4 m_LiquidParams;
 
     private float m_SampleSpacing;
 
     void Start()
     {
+        m_SampleSpacing = 1.0f / heightMapSize;
+
         m_IsSupported = CheckSupport();
         if (!m_IsSupported)
             return;
-
-        m_SampleSpacing = 1.0f/heightMapSize*0.5f;
 
         m_SampleCamera = new GameObject("[LiquidSampleCamera]").AddComponent<LiquidSampleCamera>();
         m_SampleCamera.transform.SetParent(transform);
@@ -125,6 +125,9 @@ public class LiquidSimulator : MonoBehaviour
         m_Renderer.transform.localEulerAngles = Vector3.zero;
         m_Renderer.Init(geometryCellSize, liquidWidth, liquidLength);
         m_Renderer.SetLiquidMaterial(m_LiquidMaterial);
+        m_Renderer.SetLiquidHeightMap(m_SampleCamera.HeightMap);
+        m_Renderer.SetLiquidNormalMap(m_SampleCamera.NormalMap);
+        m_Renderer.SetLiquidReflectMap(m_SampleCamera.ReflectMap);
     }
     
     void Update()
@@ -194,7 +197,9 @@ public class LiquidSimulator : MonoBehaviour
         float k2 = i / j;
         float k3 = 2 * fac / j;
 
-        m_LiquidParams = new Vector3(k1, k2, k3);
+        m_LiquidParams = new Vector4(k1, k2, k3, m_SampleSpacing);
+
+        Debug.Log(m_LiquidParams.ToString("f7"));
         m_Velocity = speed;
         m_Viscosity = viscosity;
 
