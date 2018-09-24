@@ -10,16 +10,33 @@ namespace ASL.LiquidSimulator
     public class LiquidCausticRenderer : MonoBehaviour
     {
 
-        // Use this for initialization
+        private MeshRenderer m_MeshRenderer;
+        private MeshFilter m_MeshFilter;
+
+        private Mesh m_Mesh;
+
         void Start()
         {
 
         }
-
-        // Update is called once per frame
+        
         void Update()
         {
 
+        }
+
+        public void Init(float cellSize, float width, float length)
+        {
+            m_MeshRenderer = gameObject.GetComponent<MeshRenderer>();
+            if (m_MeshRenderer == null)
+                m_MeshRenderer = gameObject.AddComponent<MeshRenderer>();
+            m_MeshFilter = gameObject.GetComponent<MeshFilter>();
+            if (m_MeshFilter == null)
+                m_MeshFilter = gameObject.AddComponent<MeshFilter>();
+
+            m_Mesh = LiquidUtils.GenerateLiquidMesh(width, length, cellSize);
+
+            m_MeshFilter.sharedMesh = m_Mesh;
         }
     }
 }

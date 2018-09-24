@@ -99,6 +99,8 @@ public class LiquidSimulator : MonoBehaviour
     private LiquidRenderer m_Renderer;
     private LiquidSampleCamera m_SampleCamera;
 
+    private LiquidCausticRenderer m_CausticRenderer;
+
     private Vector4 m_LiquidParams;
 
     private float m_SampleSpacing;
@@ -128,6 +130,14 @@ public class LiquidSimulator : MonoBehaviour
         m_Renderer.SetLiquidHeightMap(m_SampleCamera.HeightMap);
         m_Renderer.SetLiquidNormalMap(m_SampleCamera.NormalMap);
         m_Renderer.SetLiquidReflectMap(m_SampleCamera.ReflectMap);
+
+
+
+        m_CausticRenderer = new GameObject(("[LiquidCausticRenderer]")).AddComponent<LiquidCausticRenderer>();
+        m_CausticRenderer.transform.SetParent(transform);
+        m_CausticRenderer.transform.localPosition = Vector3.zero;
+        m_CausticRenderer.transform.localEulerAngles = Vector3.zero;
+        m_CausticRenderer.Init(geometryCellSize, liquidWidth, liquidLength);
     }
     
     void Update()
