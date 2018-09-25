@@ -93,6 +93,7 @@ public class LiquidSimulator : MonoBehaviour
     //[SerializeField] private float m_SampleSpacing;
     [SerializeField] private LayerMask m_InteractLayer;
     [SerializeField] private Material m_LiquidMaterial;
+    [SerializeField] private Material m_LiquidCausticMaterial;
 
     private bool m_IsSupported;
 
@@ -138,6 +139,9 @@ public class LiquidSimulator : MonoBehaviour
         m_CausticRenderer.transform.localPosition = Vector3.zero;
         m_CausticRenderer.transform.localEulerAngles = Vector3.zero;
         m_CausticRenderer.Init(geometryCellSize, liquidWidth, liquidLength);
+        m_CausticRenderer.SetLiquidMaterial(m_LiquidCausticMaterial);
+        m_CausticRenderer.SetLiquidHeightMap(m_SampleCamera.HeightMap);
+        m_CausticRenderer.SetLiquidNormalMap(m_SampleCamera.NormalMap);
     }
     
     void Update()

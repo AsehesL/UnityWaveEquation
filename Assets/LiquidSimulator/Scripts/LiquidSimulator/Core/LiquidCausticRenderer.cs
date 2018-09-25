@@ -15,14 +15,22 @@ namespace ASL.LiquidSimulator
 
         private Mesh m_Mesh;
 
-        void Start()
+        public void SetLiquidHeightMap(RenderTexture heightMap)
         {
-
+            if (m_MeshRenderer && m_MeshRenderer.sharedMaterial)
+                m_MeshRenderer.sharedMaterial.SetTexture("_LiquidHeightMap", heightMap);
         }
-        
-        void Update()
-        {
 
+        public void SetLiquidNormalMap(RenderTexture normalMap)
+        {
+            if (m_MeshRenderer && m_MeshRenderer.sharedMaterial)
+                m_MeshRenderer.sharedMaterial.SetTexture("_LiquidNormalMap", normalMap);
+        }
+
+        public void SetLiquidMaterial(Material liquidMaterial)
+        {
+            if (m_MeshRenderer)
+                m_MeshRenderer.sharedMaterial = liquidMaterial;
         }
 
         public void Init(float cellSize, float width, float length)
