@@ -12,6 +12,8 @@ public class LiquidSimulator : MonoBehaviour
     /// 网格单元格大小
     /// </summary>
     public float geometryCellSize;
+
+    public float causticCellSize;
     /// <summary>
     /// 液面宽度
     /// </summary>
@@ -138,7 +140,7 @@ public class LiquidSimulator : MonoBehaviour
         m_CausticRenderer.transform.SetParent(transform);
         m_CausticRenderer.transform.localPosition = Vector3.zero;
         m_CausticRenderer.transform.localEulerAngles = Vector3.zero;
-        m_CausticRenderer.Init(geometryCellSize, liquidWidth, liquidLength);
+        m_CausticRenderer.Init(causticCellSize, liquidWidth, liquidLength);
         m_CausticRenderer.SetLiquidMaterial(m_LiquidCausticMaterial);
         m_CausticRenderer.SetLiquidHeightMap(m_SampleCamera.HeightMap);
         m_CausticRenderer.SetLiquidNormalMap(m_SampleCamera.NormalMap);
