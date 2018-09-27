@@ -45,20 +45,20 @@ namespace ASL.LiquidSimulator
         private Vector4 m_WaveParams;
         private Vector4 m_Plane;
 
-        void OnGUI()
-        {
-            if (m_CurTexture)
-                GUI.DrawTexture(new Rect(0, 0, 100, 100), m_HeightMap);
-        }
+        //void OnGUI()
+        //{
+        //    if (m_CurTexture)
+        //        GUI.DrawTexture(new Rect(0, 0, 100, 100), m_HeightMap);
+        //}
 
         void OnRenderObject()
         {
             if (m_ReflectCamera)
             {
-                m_ReflectCamera.CopyFrom(Camera.current);
+                m_ReflectCamera.CopyFrom(Camera.main);
                 m_ReflectCamera.targetTexture = m_ReflectMap;
                 m_ReflectCamera.worldToCameraMatrix = m_ReflectCamera.worldToCameraMatrix * ReflectMatrix(m_Plane);
-                m_ReflectCamera.projectionMatrix = ObliqueMatrix(m_Plane, Camera.current);
+                m_ReflectCamera.projectionMatrix = ObliqueMatrix(m_Plane, Camera.main);
             }
         }
 

@@ -139,7 +139,7 @@ public class LiquidSimulator : MonoBehaviour
         m_CausticRenderer = new GameObject(("[LiquidCausticRenderer]")).AddComponent<LiquidCausticRenderer>();
         m_CausticRenderer.transform.SetParent(transform);
         m_CausticRenderer.transform.localPosition = Vector3.zero;
-        m_CausticRenderer.transform.localEulerAngles = Vector3.zero;
+        m_CausticRenderer.transform.localEulerAngles = new Vector3(90, 0, 0);
         m_CausticRenderer.Init(causticCellSize, liquidWidth, liquidLength);
         m_CausticRenderer.SetLiquidMaterial(m_LiquidCausticMaterial);
         m_CausticRenderer.SetLiquidHeightMap(m_SampleCamera.HeightMap);
