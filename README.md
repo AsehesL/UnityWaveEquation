@@ -8,16 +8,16 @@ Unity下实现<strong>二维波方程可互动水面+实时焦散+实时水下�
 
 ### 效果演示：
 
-![preview2](D:/[LocalRepository]/[Git]/UnityWaveEquation/Doc/preview.gif)
+![preview2](Doc/preview.gif)
 
 #### 交互水域：
 
-![preview2](D:/[LocalRepository]/[Git]/UnityWaveEquation/Doc/preview2.PNG)
+![preview2](Doc/preview2.PNG)
 
 #### 焦散：
 
-![preview4](D:/[LocalRepository]/[Git]/UnityWaveEquation/Doc/preview4.PNG)
+![preview4](Doc/preview4.PNG)
 
 #### 体积光：
 
-![preview3](D:/[LocalRepository]/[Git]/UnityWaveEquation/Doc/preview3.PNG)
+![preview3](Doc/preview3.PNG)
