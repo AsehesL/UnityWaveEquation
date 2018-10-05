@@ -115,7 +115,7 @@
 				//float3 va = normalize(float3(2.0, 0.0, rh - lh));
 				//float3 vb = normalize(float3(0.0, 2.0, th - bh));
 
-				float3 normal = normalize(float3(lh - rh, bh - th, 20.0*_MainTex_TexelSize.x));
+				float3 normal = normalize(float3(lh - rh, bh - th, 5.0*_MainTex_TexelSize.x));
 				//float3 normal = cross(va, vb);
 				
 

@@ -49,34 +49,16 @@ public class LiquidSimulator : MonoBehaviour
     {
         get { return m_ForceFactor; }
     }
-
-    //public LayerMask InteractLayer
-    //{
-    //    get { return m_InteractLayer; }
-    //}
-
-    //public Material LiquidMaterial
-    //{
-    //    get { return m_LiquidMaterial; }
-    //    //set
-    //    //{
-    //    //    m_LiquidMaterial = value;
-    //    //    if (m_Renderer)
-    //    //        m_Renderer.SetLiquidMaterial(m_LiquidMaterial);
-    //    //}
-    //}
     
     #endregion
 
     [SerializeField] private float m_Viscosity;
     [SerializeField] private float m_Velocity;
     [SerializeField] private float m_ForceFactor;
-    //[SerializeField] private LayerMask m_InteractLayer;
     [SerializeField] private Material m_LiquidMaterial;
 
     private bool m_IsSupported;
-
-    //private LiquidRenderer m_Renderer;
+    
     private Mesh m_LiquidMesh;
     private MeshFilter m_LiquidMeshFilter;
     private MeshRenderer m_LiquidMeshRenderer;
@@ -117,16 +99,6 @@ public class LiquidSimulator : MonoBehaviour
             new Vector4(transform.up.x, transform.up.y, transform.up.z,
                 -Vector3.Dot(transform.up, transform.position)), m_LiquidParams, heightMapSize);
 
-        //m_Renderer = new GameObject("[LiquidRenderer]").AddComponent<LiquidRenderer>();
-        //m_Renderer.transform.SetParent(transform);
-        //m_Renderer.transform.localPosition = Vector3.zero;
-        //m_Renderer.transform.localEulerAngles = Vector3.zero;
-        //m_Renderer.Init(geometryCellSize, liquidWidth, liquidLength);
-        //m_Renderer.SetLiquidMaterial(m_LiquidMaterial);
-        //m_Renderer.SetLiquidHeightMap(m_SampleCamera.HeightMap);
-        //m_Renderer.SetLiquidNormalMap(m_SampleCamera.NormalMap);
-        //m_Renderer.SetLiquidReflectMap(m_SampleCamera.ReflectMap);
-
 
         m_LiquidMeshRenderer = gameObject.GetComponent<MeshRenderer>();
         if (m_LiquidMeshRenderer == null)
@@ -135,19 +107,9 @@ public class LiquidSimulator : MonoBehaviour
         if (m_LiquidMeshFilter == null)
             m_LiquidMeshFilter = gameObject.AddComponent<MeshFilter>();
 
-        m_LiquidMesh = LiquidUtils.GenerateLiquidMesh(liquidWidth, liquidLength, geometryCellSize);
+        m_LiquidMesh = Utils.GenerateLiquidMesh(liquidWidth, liquidLength, geometryCellSize);
         m_LiquidMeshFilter.sharedMesh = m_LiquidMesh;
         m_LiquidMeshRenderer.sharedMaterial = m_LiquidMaterial;
-
-
-        //m_CausticRenderer = new GameObject(("[LiquidCausticRenderer]")).AddComponent<LiquidCausticRenderer>();
-        //m_CausticRenderer.transform.SetParent(transform);
-        //m_CausticRenderer.transform.localPosition = Vector3.zero;
-        //m_CausticRenderer.transform.localEulerAngles = new Vector3(90, 0, 0);
-        //m_CausticRenderer.Init(causticCellSize, liquidWidth, liquidLength);
-        //m_CausticRenderer.SetLiquidMaterial(m_LiquidCausticMaterial);
-        //m_CausticRenderer.SetLiquidHeightMap(m_SampleCamera.HeightMap);
-        //m_CausticRenderer.SetLiquidNormalMap(m_SampleCamera.NormalMap);
 
         m_LiquidArea = new Vector4(transform.position.x - liquidWidth * 0.5f,
             transform.position.z - liquidLength * 0.5f,
@@ -167,12 +129,6 @@ public class LiquidSimulator : MonoBehaviour
     void OnWillRenderObject()
     {
         Shader.SetGlobalVector("_LiquidArea", m_LiquidArea);
-        //if (m_SampleCamera)
-        //{
-            
-        //    //if(Camera.current == Camera.main)
-        //    m_SampleCamera.UpdateReflectCamera(Camera.current, transform.up, transform.position);
-        //}
     }
 
     bool CheckSupport()
@@ -248,6 +204,6 @@ public class LiquidSimulator : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        LiquidUtils.DrawWireCube(transform.position, transform.eulerAngles.y, liquidWidth, liquidLength, -liquidDepth, 0, Color.green);
+        Utils.DrawWireCube(transform.position, transform.eulerAngles.y, liquidWidth, liquidLength, -liquidDepth, 0, Color.green);
     }
 }

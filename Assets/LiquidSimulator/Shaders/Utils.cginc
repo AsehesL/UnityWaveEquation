@@ -67,6 +67,7 @@ sampler2D _CausticMap;
 float4 _CausticPlane;
 float4 _CausticRange;
 float2 _CausticDepthRange;
+float _CausticIntensity;
 
 float4 _LiquidArea;
 
@@ -87,8 +88,10 @@ float3 SampleCaustic(float3 worldPos, float clipArea) {
 	float3 hitPos = worldPos + lightDir * (_CausticPlane.w - dot(worldPos, _CausticPlane.xyz) / dot(lightDir, _CausticPlane.xyz));
 	float2 uv = (hitPos.xz - _CausticRange.xy) / _CausticRange.zw*0.5 + 0.5;
 	float fade = 1.0 - saturate((worldPos.y - _CausticDepthRange.x) / _CausticDepthRange.y);
-	float3 caustic = tex2D(_CausticMap, uv).rgb;
-	return caustic*clipArea*fade;
+	float3 caustic = tex2D(_CausticMap, uv).rgb - 0.5;
+	if (uv.x < 0 || uv.x>1 || uv.y < 0 || uv.y>1)
+		return 0;
+	return caustic*clipArea*fade*_CausticIntensity;
 }
 
 float4 EncodeHeight(float height) {

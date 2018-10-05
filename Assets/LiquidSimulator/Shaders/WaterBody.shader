@@ -4,6 +4,7 @@
 	{
 		_BoundsMin("BoundsMin", vector) = (0,0,0,0)
 		_BoundsMax("BoundsMax", vector) = (0,0,0,0)
+		_Height("Height", float) = 0
 		_FilterColor ("FilterColor", color) = (1,1,1,1)
 		_LightIntensity ("Intensity", float) = 1
 	}
@@ -46,12 +47,14 @@
 				float4 vertex : SV_POSITION;
 				float3 worldPos : TEXCOORD1;
 			};
+
+			float _Height;
 			
 			v2f vert (appdata v)
 			{
 				v2f o;
 				float height = DecodeHeight(tex2Dlod(_LiquidHeightMap, float4(v.texcoord.xy, 0, 0)));
-				v.vertex.y += height * (1 - v.color.a);
+				v.vertex.y += height * _Height * (1 - v.color.a);
 
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				o.vertex = UnityObjectToClipPos(v.vertex);

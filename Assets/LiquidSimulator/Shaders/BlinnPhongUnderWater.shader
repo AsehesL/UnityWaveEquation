@@ -109,11 +109,11 @@ Shader "Lighting/Forward/BlinnPhongUnderWater"
 				float3 shallCol = lerp(float3(1, 1, 1), _ShallowColor.rgb, (1.0-saturate((worldPos.y - _Range.x) / _Range.y))*clipArea);
 				float3 deepCol = lerp(float3(1, 1, 1), _DeepColor.rgb, (1.0 - saturate((worldPos.y - _Range.z) / _Range.w))*clipArea);
 
-				col.rgb *= ao*shallCol*deepCol;
-
 				float3 caustic = SampleCaustic(worldPos.xyz, clipArea); 
 
-				col.rgb *= UNITY_LIGHTMODEL_AMBIENT.rgb + (caustic + internalWorldLightColor.rgb* ndl*gi.rgb + _SpecColor.rgb * pow(spec, _Specular)*_Gloss*tex2D(_SpecTex, i.uv).rgb*internalWorldLightColor.rgb) *atten;
+				col.rgb *= ao * shallCol*deepCol;
+
+				col.rgb *= UNITY_LIGHTMODEL_AMBIENT.rgb + (caustic*ndl + internalWorldLightColor.rgb* ndl*gi.rgb + _SpecColor.rgb * pow(spec, _Specular)*_Gloss*tex2D(_SpecTex, i.uv).rgb*internalWorldLightColor.rgb) *atten;
 				
 				UNITY_APPLY_FOG(i.fogCoord, col);
 				return col;

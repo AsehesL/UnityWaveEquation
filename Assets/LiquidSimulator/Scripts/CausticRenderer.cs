@@ -5,28 +5,32 @@ using UnityEngine.Rendering;
 
 
 /// <summary>
-/// 液体焦散渲染器
+/// 焦散渲染器
 /// </summary>
-public class LiquidCausticRenderer : MonoBehaviour
+public class CausticRenderer : MonoBehaviour
 {
     /// <summary>
     /// 网格单元格大小
     /// </summary>
     public float geometryCellSize;
-
     /// <summary>
     /// 焦散宽度
     /// </summary>
-    public float causticWidth;
-
+    public float width;
     /// <summary>
     /// 焦散长度
     /// </summary>
-    public float causticLength;
-
+    public float length;
+    /// <summary>
+    /// 焦散强度
+    /// </summary>
+    public float causticIntensity = 1.0f;
+    /// <summary>
+    /// 深度范围（该参数目前实现比较简单，只是简单的传入世界空间的最小高度和有效高度范围，以计算焦散的有效高度范围（线性插值），暂时没有实现复杂的范围计算效果）
+    /// </summary>
     public Vector2 causticDepthRange;
 
-    [SerializeField] private Material m_CausticMaterial;
+    public Material material;
 
     private Mesh m_Mesh;
 
@@ -35,28 +39,22 @@ public class LiquidCausticRenderer : MonoBehaviour
     private RenderTexture m_RenderTexture;
     private CommandBuffer m_CommandBuffer;
 
-    private float m_Width;
-    private float m_Height;
-
     void Start()
     {
         m_Camera = gameObject.AddComponent<Camera>();
-        m_Camera.aspect = causticWidth / causticLength;
+        m_Camera.aspect = width / length;
         m_Camera.backgroundColor = Color.black;
         //m_Camera.enabled = false;
         m_Camera.depth = 0;
         m_Camera.farClipPlane = 5;
         m_Camera.nearClipPlane = -5;
         m_Camera.orthographic = true;
-        m_Camera.orthographicSize = causticLength * 0.5f * 1.2f;
+        m_Camera.orthographicSize = length * 0.5f;
         //m_Camera.clearFlags = CameraClearFlags.SolidColor;
         m_Camera.clearFlags = CameraClearFlags.SolidColor;
         m_Camera.allowHDR = false;
         m_Camera.backgroundColor = Color.black;
         m_Camera.cullingMask = 0;
-
-        m_Width = causticWidth * 0.5f * 1.2f;
-        m_Height = causticLength * 0.5f * 1.2f;
 
         m_RenderTexture = RenderTexture.GetTemporary(512, 512, 16);
         m_RenderTexture.name = "[Caustic]";
@@ -66,33 +64,29 @@ public class LiquidCausticRenderer : MonoBehaviour
         m_CommandBuffer.name = "[Caustic CB]";
         m_Camera.AddCommandBuffer(CameraEvent.AfterImageEffectsOpaque, m_CommandBuffer);
 
-        m_Mesh = LiquidUtils.GenerateLiquidMesh(causticWidth, causticLength, geometryCellSize);
+        m_Mesh = Utils.GenerateLiquidMesh(width, length, geometryCellSize);
 
-    }
-
-    void OnGUI()
-    {
-        if (m_RenderTexture)
-            GUI.DrawTexture(new Rect(0, 0, 100, 100), m_RenderTexture);
     }
 
     void OnPostRender()
     {
+        //绘制焦散mesh
         Matrix4x4 trs = Matrix4x4.TRS(transform.position, Quaternion.identity, Vector3.one);
         m_CommandBuffer.Clear();
         m_CommandBuffer.ClearRenderTarget(true, true, Color.black);
 
         m_CommandBuffer.SetRenderTarget(m_RenderTexture);
 
-        m_CommandBuffer.DrawMesh(m_Mesh, trs, m_CausticMaterial);
+        m_CommandBuffer.DrawMesh(m_Mesh, trs, material);
 
         Vector4 plane = new Vector4(0, 1, 0, Vector3.Dot(new Vector3(0, 1, 0), transform.position));
-        Vector4 range = new Vector4(transform.position.x, transform.position.z, m_Width * 1.2f, m_Height * 1.2f);
+        Vector4 range = new Vector4(transform.position.x, transform.position.z, width * 0.5f, length * 0.5f);
 
         Shader.SetGlobalVector("_CausticPlane", plane);
         Shader.SetGlobalVector("_CausticRange", range);
         Shader.SetGlobalTexture("_CausticMap", m_RenderTexture);
         Shader.SetGlobalVector("_CausticDepthRange", causticDepthRange);
+        Shader.SetGlobalFloat("_CausticIntensity", causticIntensity);
     }
 
     void OnDestroy()
@@ -110,7 +104,7 @@ public class LiquidCausticRenderer : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        LiquidUtils.DrawWireCube(transform.position, transform.eulerAngles.y, causticWidth, causticLength, 0, 0,
+        Utils.DrawWireCube(transform.position, transform.eulerAngles.y, width, length, 0, 0,
             Color.blue);
     }
 }

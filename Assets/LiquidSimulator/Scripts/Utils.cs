@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-public static class LiquidUtils
+public static class Utils
 {
     public static Mesh GenerateLiquidMesh(float width, float length, float cellSize)
     {
