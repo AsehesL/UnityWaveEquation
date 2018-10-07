@@ -1,16 +1,14 @@
-﻿Shader "Unlit/Water"
+﻿Shader "Custom/Water"
 {
 	Properties
 	{
-		//_LiquidHeightMap ("HeightMap", 2D) = "" {}
-		//_LiquidReflectMap ("ReflectMap", 2D) = "" {}
 		_Specular("Specular", float) = 0
 		_Gloss("Gloss", float) = 0
 		_Refract("Refract", float) = 0
-		_Height ("Height", float) = 0
-		_Range("Range", vector) = (0, 0, 0, 0)
-		_ShallowColor("ShallowColor", color) = (1,1,1,1)
-		_DeepColor("DeepColor", color) = (1,1,1,1)
+		_Height ("Height(position, color)", vector) = (0.36, 0, 0, 0)
+		_Fresnel ("Fresnel", float) = 3.0
+		_BaseColor ("BaseColor", color) = (1,1,1,1)
+		_WaterColor ("WaterColor", color) = (1,1,1,1)
 	}
 	SubShader
 	{
@@ -23,7 +21,6 @@
 		{
 			zwrite off
 			blend srcalpha oneminussrcalpha
-			//Tags{ "LightMode" = "ForwardBase" }
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
@@ -53,13 +50,14 @@
 			half _Specular;
 			half _Gloss;
 
-			half4 _ShallowColor;
-			half4 _DeepColor;
+			half4 _BaseColor;
+			half4 _WaterColor;
 
-			half4 _Range;
 			half _Refract;
 
-			float _Height;
+			half _Fresnel;
+
+			float2 _Height;
 			
 			v2f vert (appdata_full v)
 			{
@@ -70,8 +68,7 @@
 				o.proj1 = ComputeScreenPos(projPos);
 
 				float height = DecodeHeight(tex2Dlod(_LiquidHeightMap, float4(v.texcoord.xy,0,0)));
-				//v.vertex.y += (height-0.5)*_Height;
-				v.vertex.y += height*_Height;
+				v.vertex.y += height*_Height.x;
 				o.uv = v.texcoord;
 				UNITY_TRANSFER_FOG(o,o.vertex);
 				o.vertex = UnityObjectToClipPos(v.vertex);
@@ -92,23 +89,32 @@
 				return o;
 			}
 
+			half3 WaterColor(float3 refractColor, float3 reflectColor, float3 worldPos, float height, float3 worldNormal, float3 lightDir, float3 viewDir) {
+				float f = pow(clamp(1.0 - dot(worldNormal, viewDir), 0.0, 1.0), _Fresnel) * 0.65;
+				float3 viewDis = -UnityWorldSpaceViewDir(worldPos);
+
+				float3 refraccol = _BaseColor.rgb*refractColor + pow(dot(worldNormal, lightDir) * 0.4 + 0.6, 80.0) * _WaterColor.rgb * 0.12;
+
+				float3 color = lerp(refraccol, reflectColor, f);
+
+				float atten = max(1.0 - dot(viewDis, viewDis) * 0.001, 0.0);
+				color += _WaterColor.rgb*refractColor * (height*_Height.y) * 0.18 * atten;
+
+				return color;
+			}
+
 			
 			half4 frag (v2f i) : SV_Target
 			{
 				float depth = LinearEyeDepth(tex2Dproj(_CameraDepthTexture, i.proj1));
 				float deltaDepth = depth - i.proj0.z;
 
-				half3 ranges = saturate(_Range.xyz * deltaDepth);
-				ranges.y = 1.0 - ranges.y;
-				ranges.y = lerp(ranges.y, ranges.y * ranges.y * ranges.y, 0.5);
 				
-				//float4 heightMapCol = tex2D(_LiquidHeightMap, i.uv);
-				//float height;
-				//float3 normal;
-				//DecodeDepthNormal(heightMapCol, height, normal);
 				float3 normal = UnpackNormal(tex2D(_LiquidNormalMap, i.uv));
 
 				L_SHADOW_ATTEN_REFRACT(atten, i, (normal.xy*_Refract));
+
+				float height = DecodeHeight(tex2D(_LiquidHeightMap, i.uv));
 
 				float3 worldNormal = float3(dot(i.TW0.xyz, normal), dot(i.TW1.xyz, normal), dot(i.TW2.xyz, normal));
 				float3 worldPos = float3(i.TW0.w, i.TW1.w, i.TW2.w);
@@ -118,34 +124,19 @@
 
 				float2 projUv = i.proj0.xy / i.proj0.w + normal.xy*_Refract;
 				half4 col = tex2D(_GrabTexture, projUv);
-
-//#if UNITY_UV_STARTS_AT_TOP
-//				projUv.y = 1.0 - projUv.y;
-//#endif
-
 				half4 reflcol = tex2D(_LiquidReflectMap, projUv);
 
-				col.rgb = lerp(col.rgb, reflcol.rgb, 0.5);
-
-				half3 watercol = lerp(_DeepColor.rgb, _ShallowColor.rgb, ranges.y);
+				col.rgb = WaterColor(col.rgb, reflcol.rgb, worldPos, height, worldNormal, lightDir, viewDir);
 
 				float3 hdir = normalize(lightDir + viewDir);
 
 				float ndh = max(0, dot(worldNormal, hdir));
 
-				col.rgb *= watercol.rgb;
-
 				col.rgb += internalWorldLightColor.rgb * pow(ndh, _Specular*128.0) * _Gloss*atten;
 
-				//col.rgb *= _Color.rgb;
-				// apply fog
 				UNITY_APPLY_FOG(i.fogCoord, col);
 
-				//col.a = ranges.x;
 				col.a = 1.0;
-				//return float4(height,height,height,1);
-				//return float4(normal, 1);
-				//return tex2D(_LiquidNormalMap, i.uv);
 				return col;
 			}
 			ENDCG

@@ -1,7 +1,7 @@
 ﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 // Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "Lighting/Forward/BlinnPhongUnderWater"
+Shader "Custom/BlinnPhongUnderWater"
 {
 	Properties
 	{
@@ -86,7 +86,7 @@ Shader "Lighting/Forward/BlinnPhongUnderWater"
 				return o;
 			}
 			
-			fixed4 frag (v2f i) : SV_Target
+			half4 frag (v2f i) : SV_Target
 			{
 				float3 worldPos = float3(i.RT0.w,i.RT1.w,i.RT2.w);
 				float3 rnormal = UnpackNormal(tex2D(_BumpTex, i.uv));
@@ -103,15 +103,14 @@ Shader "Lighting/Forward/BlinnPhongUnderWater"
 
 				float3 ao = tex2D(_AOTex, i.aouv).rgb;
 
-				fixed4 col = tex2D(_MainTex, i.uv);
+				half4 col = tex2D(_MainTex, i.uv);
 
 				float clipArea = ClipArea(worldPos.xyz);
-				float3 shallCol = lerp(float3(1, 1, 1), _ShallowColor.rgb, (1.0-saturate((worldPos.y - _Range.x) / _Range.y))*clipArea);
+				float3 shallCol = lerp(float3(1, 1, 1), _ShallowColor.rgb, (1.0 - saturate((worldPos.y - _Range.x) / _Range.y))*clipArea);
 				float3 deepCol = lerp(float3(1, 1, 1), _DeepColor.rgb, (1.0 - saturate((worldPos.y - _Range.z) / _Range.w))*clipArea);
+				float3 caustic = SampleCaustic(worldPos.xyz, clipArea);
 
-				float3 caustic = SampleCaustic(worldPos.xyz, clipArea); 
-
-				col.rgb *= ao * shallCol*deepCol;
+				col.rgb *= ao* shallCol*deepCol;
 
 				col.rgb *= UNITY_LIGHTMODEL_AMBIENT.rgb + (caustic*ndl + internalWorldLightColor.rgb* ndl*gi.rgb + _SpecColor.rgb * pow(spec, _Specular)*_Gloss*tex2D(_SpecTex, i.uv).rgb*internalWorldLightColor.rgb) *atten;
 				

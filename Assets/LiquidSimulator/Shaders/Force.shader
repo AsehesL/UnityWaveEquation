@@ -40,8 +40,6 @@
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				//return EncodeFloatRGBA(i.depth*internal_Force);
-				//return fixed4(i.depth*internal_Force, i.depth*internal_Force, i.depth*internal_Force, 1.0);
 				return EncodeHeight(i.depth*internal_Force);
 			}
 			ENDCG
