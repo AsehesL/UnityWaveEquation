@@ -10,6 +10,8 @@ Unity下实现<strong>二维波方程可互动水面+实时焦散+实时水下�
 
 ![preview2](Doc/preview.gif)
 
+![preview2](Doc/preview1.gif)
+
 #### 交互水域：
 
 ![preview2](Doc/preview2.PNG)
