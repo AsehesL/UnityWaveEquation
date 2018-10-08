@@ -126,6 +126,14 @@ public class LiquidSimulator : MonoBehaviour
         }
     }
 
+    public static void DrawMesh(Mesh mesh, Matrix4x4 matrix)
+    {
+        if (Instance != null)
+        {
+            Instance.m_SampleCamera.ForceDrawMesh(mesh, matrix);
+        }
+    }
+
     void OnWillRenderObject()
     {
         Shader.SetGlobalVector("_LiquidArea", m_LiquidArea);

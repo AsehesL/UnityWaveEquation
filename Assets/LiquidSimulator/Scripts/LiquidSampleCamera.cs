@@ -29,6 +29,14 @@ public class LiquidSampleCamera : MonoBehaviour
             m_CommandBuffer.DrawRenderer(renderer, m_ForceMaterial);
     }
 
+    public void ForceDrawMesh(Mesh mesh, Matrix4x4 matrix)
+    {
+        if (!mesh)
+            return;
+        //if (IsBoundsInCamera(mesh.bounds, m_Camera))
+            m_CommandBuffer.DrawMesh(mesh, matrix, m_ForceMaterial);
+    }
+
     public void Init(float width, float height, float depth, float force, Vector4 plane, Vector4 waveParams,
         int texSize)
     {
