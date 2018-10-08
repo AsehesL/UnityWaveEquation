@@ -1,4 +1,4 @@
-﻿Shader "Hidden/LiquidSimulator/Force"
+﻿Shader "Hidden/Force"
 {
 	Properties
 	{

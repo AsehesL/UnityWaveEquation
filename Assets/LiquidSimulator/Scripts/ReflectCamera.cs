@@ -10,12 +10,12 @@ public class ReflectCamera : MonoBehaviour
 
     private RenderTexture m_ReflectTex;
 
-    private Matrix4x4 m_ReflectionMatrix;
-    private Matrix4x4 m_ClipProjection;
+    //private Matrix4x4 m_ReflectionMatrix;
+    //private Matrix4x4 m_ClipProjection;
 
     private Camera m_Camera;
 
-    private static bool m_IsRendering = false;
+    private static bool m_IsRendering = false; 
 
     void OnDisable()
     {
@@ -95,8 +95,9 @@ public class ReflectCamera : MonoBehaviour
         if (!cam)
         {
 
-            cam = new GameObject("Mirror Refl Camera id" + GetInstanceID() + " for " + current.GetInstanceID()).AddComponent<Camera>();
+            cam = new GameObject("ReflectCamera").AddComponent<Camera>();
             cam.enabled = false;
+            cam.hideFlags = HideFlags.HideInHierarchy;
 
             Transform t = cam.transform;
             t.position = transform.position;
@@ -155,15 +156,16 @@ public class ReflectCamera : MonoBehaviour
 
         Vector3 oldpos = cam.transform.position;
         Vector3 newpos = reflection.MultiplyPoint(oldpos);
-        m_ReflectionMatrix = reflection;
+        //m_ReflectionMatrix = reflection;
         mirror.worldToCameraMatrix = cam.worldToCameraMatrix * reflection;
 
         Vector4 clipPlane = CameraSpacePlane(mirror, pos, normal, 1.0f);
         Matrix4x4 projection = cam.projectionMatrix;
 
-        CalculateObliqueMatrix(ref projection, clipPlane);
+        //CalculateObliqueMatrix(ref projection, clipPlane);
+        projection = cam.CalculateObliqueMatrix(clipPlane);
 
-        m_ClipProjection = projection;
+        //m_ClipProjection = projection;
         mirror.projectionMatrix = projection;
         mirror.cullingMask = ~(1 << 4) & mask.value;
         mirror.targetTexture = m_ReflectTex;

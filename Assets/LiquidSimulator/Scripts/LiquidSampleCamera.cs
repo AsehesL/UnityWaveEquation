@@ -15,6 +15,7 @@ public class LiquidSampleCamera : MonoBehaviour
     private RenderTexture m_NormalMap;
 
     private Material m_WaveEquationMat;
+    private Material m_NormalGenerateMat;
 
     private Vector4 m_WaveParams;
 
@@ -56,7 +57,7 @@ public class LiquidSampleCamera : MonoBehaviour
 
         m_CommandBuffer = new CommandBuffer();
         m_Camera.AddCommandBuffer(CameraEvent.AfterImageEffectsOpaque, m_CommandBuffer);
-        m_ForceMaterial = new Material(Shader.Find("Hidden/LiquidSimulator/Force"));
+        m_ForceMaterial = new Material(Shader.Find("Hidden/Force"));
 
         m_CurTexture = RenderTexture.GetTemporary(texSize, texSize, 16);
         m_CurTexture.name = "[Cur]";
@@ -83,6 +84,7 @@ public class LiquidSampleCamera : MonoBehaviour
         Shader.SetGlobalFloat("internal_Force", force);
 
         m_WaveEquationMat = new Material(Shader.Find("Hidden/WaveEquationGen"));
+        m_NormalGenerateMat = new Material(Shader.Find("Hidden/NormalGen"));
         m_WaveEquationMat.SetVector("_WaveParams", m_WaveParams);
     }
 
@@ -91,11 +93,11 @@ public class LiquidSampleCamera : MonoBehaviour
         //传入前一次的高度渲染结果，以在shader中根据二位波方程计算当前高度
         m_WaveEquationMat.SetTexture("_PreTex", m_PreTexture);
 
-        Graphics.Blit(src, dst, m_WaveEquationMat, 0);
+        Graphics.Blit(src, dst, m_WaveEquationMat);
 
         Graphics.Blit(dst, m_HeightMap);
 
-        RenderNormalMap(m_HeightMap, m_NormalMap);
+        Graphics.Blit(m_HeightMap, m_NormalMap, m_NormalGenerateMat);
 
 
         Graphics.Blit(src, m_PreTexture);
@@ -111,11 +113,6 @@ public class LiquidSampleCamera : MonoBehaviour
 
         Shader.SetGlobalTexture("_LiquidHeightMap", m_HeightMap);
         Shader.SetGlobalTexture("_LiquidNormalMap", m_NormalMap);
-    }
-
-    private void RenderNormalMap(RenderTexture src, RenderTexture dst)
-    {
-        Graphics.Blit(src, dst, m_WaveEquationMat, 1);
     }
 
     /// <summary>
@@ -193,6 +190,10 @@ public class LiquidSampleCamera : MonoBehaviour
             RenderTexture.ReleaseTemporary(m_NormalMap);
         if (m_ForceMaterial)
             Destroy(m_ForceMaterial);
+        if (m_WaveEquationMat)
+            Destroy(m_WaveEquationMat);
+        if (m_NormalGenerateMat)
+            Destroy(m_NormalGenerateMat);
         if (m_CommandBuffer != null)
             m_CommandBuffer.Release();
         //if (m_ReflectCamera)

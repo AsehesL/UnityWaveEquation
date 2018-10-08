@@ -63,7 +63,7 @@ public class LiquidSimulator : MonoBehaviour
     private MeshFilter m_LiquidMeshFilter;
     private MeshRenderer m_LiquidMeshRenderer;
     private LiquidSampleCamera m_SampleCamera;
-    private ReflectCamera m_ReflectCamera;
+    //private ReflectCamera m_ReflectCamera;
 
     private Vector4 m_LiquidParams;
 
@@ -115,14 +115,14 @@ public class LiquidSimulator : MonoBehaviour
             transform.position.z - liquidLength * 0.5f,
             transform.position.x + liquidWidth * 0.5f, transform.position.z + liquidLength * 0.5f);
 
-        m_ReflectCamera = gameObject.AddComponent<ReflectCamera>();
+        gameObject.AddComponent<ReflectCamera>();
     }
 
     public static void DrawObject(Renderer renderer)
     {
         if (Instance != null)
         {
-            Instance.m_SampleCamera.DrawRenderer(renderer);
+            Instance.m_SampleCamera.DrawRenderer(renderer); 
         }
     }
 
@@ -202,8 +202,7 @@ public class LiquidSimulator : MonoBehaviour
         float k3 = 2 * fac / j;
 
         m_LiquidParams = new Vector4(k1, k2, k3, m_SampleSpacing);
-
-        Debug.Log(m_LiquidParams.ToString("f7"));
+        
         m_Velocity = speed;
         m_Viscosity = viscosity;
 
