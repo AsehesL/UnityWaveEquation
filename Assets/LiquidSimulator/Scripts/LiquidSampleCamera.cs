@@ -39,7 +39,7 @@ public class LiquidSampleCamera : MonoBehaviour
     }
 
     public void Init(float width, float height, float depth, float force, Vector4 plane, Vector4 waveParams,
-        int texSize)
+        int texSize, Texture2D mask)
     {
         m_WaveParams = waveParams;
 
@@ -84,6 +84,7 @@ public class LiquidSampleCamera : MonoBehaviour
         Shader.SetGlobalFloat("internal_Force", force);
 
         m_WaveEquationMat = new Material(Shader.Find("Hidden/WaveEquationGen"));
+        m_WaveEquationMat.SetTexture("_Mask", mask);
         m_NormalGenerateMat = new Material(Shader.Find("Hidden/NormalGen"));
         m_WaveEquationMat.SetVector("_WaveParams", m_WaveParams);
     }

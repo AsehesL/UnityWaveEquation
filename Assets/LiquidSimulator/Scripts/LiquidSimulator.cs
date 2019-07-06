@@ -26,6 +26,8 @@ public class LiquidSimulator : MonoBehaviour
 
     public int heightMapSize;
 
+    public Texture2D mask;
+
     /// <summary>
     /// 粘度系数
     /// </summary>
@@ -97,7 +99,7 @@ public class LiquidSimulator : MonoBehaviour
         m_SampleCamera.transform.localEulerAngles = new Vector3(90,0,0);
         m_SampleCamera.Init(liquidWidth, liquidLength, liquidDepth, m_ForceFactor,
             new Vector4(transform.up.x, transform.up.y, transform.up.z,
-                -Vector3.Dot(transform.up, transform.position)), m_LiquidParams, heightMapSize);
+                -Vector3.Dot(transform.up, transform.position)), m_LiquidParams, heightMapSize, mask);
 
 
         m_LiquidMeshRenderer = gameObject.GetComponent<MeshRenderer>();

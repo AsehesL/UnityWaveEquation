@@ -3,6 +3,7 @@
 	Properties
 	{
 		_MainTex ("MainTexture", 2D) = "white" {}
+		_Mask ("Mask", 2D) = "white" {}
 		_PreTex("PreTex", 2D) = "white" {}
 		_WaveParams("WaveParams", vector) = (0,0,0,0)
 	}
@@ -42,21 +43,24 @@
 			sampler2D _MainTex;
 			sampler2D _PreTex;
 
+			sampler2D _Mask;
 
 			half4 _WaveParams;
 
 			fixed4 frag (v2f i) : SV_Target
 			{
 				float cur = _WaveParams.x*DecodeHeight(tex2D(_MainTex, i.uv));
-				
+				fixed mask = tex2D(_Mask, i.uv).r;
+
 				float rg = _WaveParams.z*(DecodeHeight(tex2D(_MainTex, i.uv + float2(_WaveParams.w, 0))) + DecodeHeight(tex2D(_MainTex, i.uv + float2(-_WaveParams.w,0)))
 				+ DecodeHeight(tex2D(_MainTex, i.uv + float2(0, _WaveParams.w))) + DecodeHeight(tex2D(_MainTex, i.uv + float2(0,-_WaveParams.w))));
 
 				float pre = _WaveParams.y*DecodeHeight(tex2D(_PreTex, i.uv));
 				
-				cur += rg + pre;
+				cur += (rg + pre) * mask;
 
-				cur *= 0.96;
+				cur *= 0.96*mask;
+
 
 				return EncodeHeight(cur);
 			}
